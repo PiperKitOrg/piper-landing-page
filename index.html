@@ -200,12 +200,16 @@ table.mx{border-collapse:collapse;width:100%;min-width:480px;font-family:var(--m
 .cmdline button{flex:none;background:transparent;border:1px solid var(--term-line);color:var(--term-dim);border-radius:3px;font:500 .72rem var(--mono);padding:4px 8px;cursor:pointer}
 .cmdline button:hover{color:var(--term-fg);border-color:var(--term-dim)}
 .small{margin-top:14px;font-size:.9rem;color:var(--muted)}
-.dl{margin-top:28px;display:grid;gap:12px}
-.dl a.pack{display:grid;grid-template-columns:1fr auto;gap:4px 16px;align-items:center;padding:16px 18px;border:1px solid var(--line);border-radius:4px;text-decoration:none;background:var(--bg2)}
-.dl a.pack:hover{border-color:var(--fg)}
-.dl a.pack b{font:600 .98rem var(--body);color:var(--fg)}
-.dl a.pack span{grid-column:1;color:var(--muted);font-size:.9rem}
-.dl a.pack em{grid-row:span 2;font:500 .78rem var(--mono);font-style:normal;color:var(--accent)}
+.dl{margin-top:28px;display:grid;gap:10px}
+.plats{margin-top:22px;border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.plats table{width:100%;border-collapse:collapse;font:400 .85rem var(--mono)}
+.plats th,.plats td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--line);vertical-align:middle}
+.plats th{background:var(--bg2);font-weight:500;color:var(--muted);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase}
+.plats tr:last-child td{border-bottom:0}
+.plats td a{color:var(--fg);text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--line)}
+.plats td a:hover{text-decoration-color:var(--fg)}
+.plats .os{font-weight:600;font-family:var(--body);font-size:.95rem}
+.plats .meta{color:var(--muted);font-size:.8rem}
 .note-local{margin-top:20px;padding:16px 18px;border-left:3px solid var(--accent);background:var(--bg2);color:var(--muted);font-size:.95rem}
 .note-local strong{color:var(--fg);font-weight:600}
 
@@ -240,7 +244,7 @@ footer .mono{font-family:var(--mono);font-size:.8rem}
     <p class="lede">Piper is a local CLI that migrates schema and data across PostgreSQL, MySQL, and MongoDB. It plans offline from a snapshot, <strong>names every skip, widening, and omission</strong>, and touches the target only when you run execute.</p>
     <div class="row">
       <a class="btn p" href="#get">Get the binary</a>
-      <a class="btn" href="starter/piper-starter.zip" download>Download starter zip</a>
+      <a class="btn" href="#get">Starter zips by platform</a>
       <a class="btn q" href="#honesty">See a plan</a>
     </div>
     <p class="facts" aria-label="Key facts"><span>single binary</span><span>no account</span><span>no daemon</span><span>no telemetry</span></p>
@@ -603,23 +607,50 @@ footer .mono{font-family:var(--mono);font-size:.8rem}
     <div>
       <p class="eyebrow">Get started</p>
       <h2>Run doctor, then read your first plan.</h2>
-      <p class="intro">Piper is a single local binary. Nothing to sign up for, nothing that phones home. Download the binary alone, or the starter zip with a ready folder layout.</p>
+      <p class="intro">Piper is one local binary per platform — macOS, Linux, and Windows, on amd64 and arm64. Download the binary alone, or a starter zip that already has it at the folder root.</p>
 
-      <div class="dl" id="download">
-        <a class="pack" href="downloads/piper-darwin-arm64" download>
-          <b>Binary only</b>
-          <span>macOS Apple Silicon · run with <code>./piper-darwin-arm64</code></span>
-          <em>download</em>
-        </a>
-        <a class="pack" href="starter/piper-starter.zip" download>
-          <b>Starter zip</b>
-          <span>Binary + empty <code>notes/</code> and <code>scripts/</code> · unzip and run from the folder root</span>
-          <em>zip</em>
-        </a>
+      <div class="plats" id="download">
+        <table>
+          <thead>
+            <tr><th scope="col">Platform</th><th scope="col">Binary</th><th scope="col">Starter zip</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="os">macOS</span><br><span class="meta">Apple Silicon · arm64</span></td>
+              <td><a href="downloads/piper-darwin-arm64" download>piper-darwin-arm64</a></td>
+              <td><a href="starter/piper-starter-darwin-arm64.zip" download>starter zip</a></td>
+            </tr>
+            <tr>
+              <td><span class="os">macOS</span><br><span class="meta">Intel · amd64</span></td>
+              <td><a href="downloads/piper-darwin-amd64" download>piper-darwin-amd64</a></td>
+              <td><a href="starter/piper-starter-darwin-amd64.zip" download>starter zip</a></td>
+            </tr>
+            <tr>
+              <td><span class="os">Linux</span><br><span class="meta">x86_64 · amd64</span></td>
+              <td><a href="downloads/piper-linux-amd64" download>piper-linux-amd64</a></td>
+              <td><a href="starter/piper-starter-linux-amd64.zip" download>starter zip</a></td>
+            </tr>
+            <tr>
+              <td><span class="os">Linux</span><br><span class="meta">ARM64</span></td>
+              <td><a href="downloads/piper-linux-arm64" download>piper-linux-arm64</a></td>
+              <td><a href="starter/piper-starter-linux-arm64.zip" download>starter zip</a></td>
+            </tr>
+            <tr>
+              <td><span class="os">Windows</span><br><span class="meta">x86_64 · amd64</span></td>
+              <td><a href="downloads/piper-windows-amd64.exe" download>piper-windows-amd64.exe</a></td>
+              <td><a href="starter/piper-starter-windows-amd64.zip" download>starter zip</a></td>
+            </tr>
+            <tr>
+              <td><span class="os">Windows</span><br><span class="meta">ARM64</span></td>
+              <td><a href="downloads/piper-windows-arm64.exe" download>piper-windows-arm64.exe</a></td>
+              <td><a href="starter/piper-starter-windows-arm64.zip" download>starter zip</a></td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
-      <p class="note-local"><strong>No global install required.</strong> Piper runs from whatever directory you put it in — <code>./piper doctor</code> is enough. Putting it on your PATH is optional if you want <code>piper</code> available everywhere.</p>
-      <p class="small">Current build: darwin/arm64 · SHA-256 in <code>downloads/piper-darwin-arm64.sha256</code>. Other platforms: build from <code>piper-go</code> with <code>go build -o piper ./cmd/piper</code>.</p>
+      <p class="note-local"><strong>No global install required.</strong> Piper runs from whatever directory you put it in — <code>./piper doctor</code> (or <code>.\piper.exe doctor</code> on Windows) is enough. Putting it on your PATH is optional.</p>
+      <p class="small">Checksums: <a href="downloads/SHA256SUMS">downloads/SHA256SUMS</a>. Same six targets as the GoReleaser matrix.</p>
     </div>
 
     <ol class="steps">

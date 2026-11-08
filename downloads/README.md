@@ -1,17 +1,32 @@
 # Downloads
 
+Cross-compiled Piper binaries (CGO disabled). Pick the file that matches your OS and CPU.
+
 | File | Platform |
 |------|----------|
 | `piper-darwin-arm64` | macOS Apple Silicon |
-| `piper-darwin-arm64.sha256` | SHA-256 of the binary |
-| `../starter/piper-starter.zip` | Starter folder + binary (same platform) |
+| `piper-darwin-amd64` | macOS Intel |
+| `piper-linux-amd64` | Linux x86_64 |
+| `piper-linux-arm64` | Linux ARM64 |
+| `piper-windows-amd64.exe` | Windows x86_64 |
+| `piper-windows-arm64.exe` | Windows ARM64 |
+| `SHA256SUMS` | Checksums for every file above |
 
-Run the binary from any directory:
+## Run without a global install
 
 ```bash
-chmod +x ./piper-darwin-arm64
-./piper-darwin-arm64 version
-./piper-darwin-arm64 doctor
+chmod +x ./piper-linux-amd64   # macOS/Linux
+./piper-linux-amd64 version
+./piper-linux-amd64 doctor
 ```
 
-A global PATH install is optional, not required.
+```powershell
+.\piper-windows-amd64.exe version
+.\piper-windows-amd64.exe doctor
+```
+
+Putting the binary on your PATH is optional. Rename it to `piper` / `piper.exe` if you want a shorter command in that folder.
+
+## Starter kits
+
+Matching unzip-and-run folders (binary already named `piper` / `piper.exe`) live in `../starter/piper-starter-<os>-<arch>.zip`.
