@@ -1,0 +1,689 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Piper</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+/* Layout concept: the page reads like a migration plan. Hero = headline beside a faithful Piper CLI printout;
+   every later section is evidence (terminal panels) next to one plain claim. Amber is reserved for warnings.
+   Terminal panels mirror real Piper chrome (magenta titles, ✓/⚠ markers, muted labels) — not invented tags. */
+:root{
+  --bg:#ECEEEA; --bg2:#E1E5E0; --fg:#12171B; --muted:#4A575E; --line:#C3CAC4;
+  --accent:#A84F00; --accent-ink:#FFFFFF;
+  --widen:#7A5600; --guess:#1F5F99; --skip:#A8231B; --okc:#17704F;
+  --term-bg:#0F1418; --term-fg:#D7DEE2; --term-dim:#7F8D95; --term-line:#222C33;
+  --t-ok:#5FD3A5; --t-warn:#F2A93B; --t-skip:#FF7A70; --t-info:#7FB4E8; --t-title:#E879F9;
+  --display:'Bricolage Grotesque','Arial Narrow',system-ui,sans-serif;
+  --body:'Instrument Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D1115; --bg2:#151B20; --fg:#E6EBEE; --muted:#9AA7AE; --line:#27313A;
+    --accent:#F2A93B; --accent-ink:#1A1100;
+    --widen:#F2C46B; --guess:#8DBDEB; --skip:#FF8A80; --okc:#5FD3A5;
+    --term-bg:#161D23; --term-line:#2A343C;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D1115; --bg2:#151B20; --fg:#E6EBEE; --muted:#9AA7AE; --line:#27313A;
+  --accent:#F2A93B; --accent-ink:#1A1100;
+  --widen:#F2C46B; --guess:#8DBDEB; --skip:#FF8A80; --okc:#5FD3A5;
+  --term-bg:#161D23; --term-line:#2A343C;
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  background:var(--bg); color:var(--fg);
+  font:400 1.0625rem/1.6 var(--body);
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1160px;margin:0 auto}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+code,kbd{font-family:var(--mono);font-size:.88em}
+p{margin:0}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
+
+/* header */
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:20px;border-bottom:1px solid var(--line)}
+.mark{display:inline-flex;align-items:center;gap:10px;text-decoration:none;font-family:var(--display);font-weight:800;font-size:1.5rem;letter-spacing:-.03em}
+.mark svg{width:28px;height:28px;flex:none}
+.nav{display:flex;align-items:center;gap:22px;font-size:.95rem}
+.nav a{text-decoration:none;color:var(--muted)}
+.nav a:hover{color:var(--fg)}
+@media (max-width:760px){.nav .l{display:none}}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 18px;border:1px solid var(--fg);border-radius:4px;font:600 .95rem var(--body);text-decoration:none;color:var(--fg);background:transparent;cursor:pointer}
+.btn:hover{background:var(--bg2)}
+.btn.p{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.p:hover{filter:brightness(1.06);background:var(--accent)}
+.btn.q{border-color:transparent;padding-inline:6px;text-decoration:underline;text-underline-offset:4px;text-decoration-color:var(--line)}
+.btn.q:hover{background:transparent;text-decoration-color:var(--fg)}
+.row{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center}
+
+/* terminal */
+.term{background:var(--term-bg);color:var(--term-fg);border:1px solid var(--term-line);border-radius:6px;overflow:hidden;font-family:var(--mono);min-width:0}
+.term-bar{display:flex;justify-content:space-between;gap:12px;padding:10px 14px;border-bottom:1px solid var(--term-line);color:var(--term-dim);font-size:.72rem;letter-spacing:.03em}
+.term-bar b{font-weight:500;color:var(--term-fg)}
+.term pre{margin:0;padding:16px 14px 18px;overflow-x:auto;font:400 .8125rem/1.75 var(--mono);tab-size:2}
+.term-foot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px 16px;padding:10px 14px;border-top:1px solid var(--term-line);font-size:.72rem;color:var(--term-dim)}
+.d{color:var(--term-dim)}
+.o{color:var(--t-ok)}
+.w{color:var(--t-warn)}
+.s{color:var(--t-skip)}
+.i{color:var(--t-info)}
+.ttl{color:var(--t-title);font-weight:600}
+.lbl{color:var(--term-dim)}
+.hl{background:rgba(242,169,59,.12);display:inline-block;width:100%}
+.cur{display:inline-block;width:.55em;height:1em;vertical-align:-.15em;background:var(--term-fg);animation:blink 1.1s steps(2,start) infinite}
+@keyframes blink{to{visibility:hidden}}
+@media (prefers-reduced-motion:reduce){.cur{animation:none}html{scroll-behavior:auto}}
+
+/* hero */
+.hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.12fr);gap:48px;padding-block:64px 72px;align-items:center}
+.kicker{font:500 .78rem var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:20px}
+.hero h1{font-weight:800;font-size:clamp(2.6rem,5.6vw,4.7rem);line-height:.98;letter-spacing:-.035em}
+.hero h1 em{font-style:normal;color:var(--accent)}
+.lede{margin-top:24px;max-width:34em;font-size:1.12rem;color:var(--muted)}
+.lede strong{color:var(--fg);font-weight:600}
+.hero .row{margin-top:30px}
+.facts{margin-top:26px;font:400 .8rem var(--mono);color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 18px}
+.facts span::before{content:"· ";color:var(--accent)}
+@media (max-width:900px){.hero{grid-template-columns:minmax(0,1fr);gap:36px;padding-block:40px 48px}}
+
+/* sections */
+section{padding-block:80px;border-top:1px solid var(--line)}
+.eyebrow{font:500 .78rem var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:14px}
+h2{font-weight:700;font-size:clamp(1.9rem,3.8vw,3rem);line-height:1.05;letter-spacing:-.028em;max-width:18em}
+.intro{margin-top:18px;max-width:38em;color:var(--muted)}
+.split{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:48px;align-items:start}
+@media (max-width:900px){.split{grid-template-columns:minmax(0,1fr);gap:32px}section{padding-block:56px}}
+
+/* pipeline tabs */
+.pipe{margin-top:40px;display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:32px;align-items:start}
+@media (max-width:900px){.pipe{grid-template-columns:minmax(0,1fr)}}
+.tabs{border-top:1px solid var(--line)}
+.tab{display:grid;grid-template-columns:34px 1fr;column-gap:10px;width:100%;text-align:left;background:transparent;color:var(--fg);border:0;border-bottom:1px solid var(--line);padding:18px 14px 18px 8px;cursor:pointer;font:inherit}
+.tab:hover{background:var(--bg2)}
+.tab[aria-selected="true"]{background:var(--bg2)}
+.tab .n{font:700 1.4rem var(--display);color:var(--muted);grid-row:span 3}
+.tab[aria-selected="true"] .n{color:var(--accent)}
+.tab .cmd{font:500 1rem var(--mono)}
+.tab .ds{color:var(--muted);font-size:.97rem;margin-top:4px}
+.tab .tc{margin-top:8px;font:400 .72rem var(--mono);letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.panel[hidden]{display:none}
+.loop{margin-top:32px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0;border:1px solid var(--line)}
+.loop > div{padding:22px 24px}
+.loop > div + div{border-left:1px solid var(--line)}
+.loop h3{font-size:1.25rem;font-weight:700;letter-spacing:-.02em}
+.loop p{margin-top:8px;color:var(--muted);font-size:.98rem}
+@media (max-width:700px){.loop{grid-template-columns:minmax(0,1fr)}.loop > div + div{border-left:0;border-top:1px solid var(--line)}}
+
+/* drift comparison */
+.cmp{margin-top:40px;display:grid;grid-template-columns:minmax(0,.7fr) minmax(0,1.3fr);gap:0;border:1px solid var(--line)}
+.cmp > div{padding:28px}
+.cmp > div + div{border-left:1px solid var(--line);background:var(--bg2)}
+.cmp h3{font:500 .78rem var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:16px}
+.report{font:400 .95rem/1.8 var(--mono)}
+.report .ok{color:var(--okc)}
+.drift{list-style:none;margin:0;padding:0;display:grid;gap:14px}
+.drift li{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;align-items:baseline}
+.drift code{color:var(--skip);font-weight:500}
+.drift span{color:var(--muted)}
+.punch{margin-top:32px;font:700 clamp(1.3rem,2.4vw,1.8rem)/1.2 var(--display);letter-spacing:-.02em;max-width:24em}
+@media (max-width:800px){.cmp{grid-template-columns:minmax(0,1fr)}.cmp > div + div{border-left:0;border-top:1px solid var(--line)}}
+
+/* honesty words */
+.words{margin-top:36px;border-top:1px solid var(--line)}
+.word{display:grid;grid-template-columns:96px 1fr;gap:6px 18px;padding:18px 0;border-bottom:1px solid var(--line);align-items:baseline}
+.word b{font:700 .85rem var(--mono);letter-spacing:.06em;text-transform:uppercase}
+.word.wd b{color:var(--widen)} .word.gs b{color:var(--guess)} .word.sk b{color:var(--skip)}
+.word p{color:var(--muted);font-size:.98rem}
+.word p strong{color:var(--fg);font-weight:600}
+.strict{margin-top:28px;padding:20px 22px;border:1px solid var(--accent)}
+.strict h3{font-size:1.15rem;font-weight:700;letter-spacing:-.015em}
+.strict p{margin-top:6px;color:var(--muted);font-size:.98rem}
+
+/* operator */
+.ops{margin-top:36px;display:grid;gap:0;border-top:1px solid var(--line)}
+.op{display:grid;grid-template-columns:150px 1fr;gap:6px 18px;padding:16px 0;border-bottom:1px solid var(--line);align-items:baseline}
+.op b{font:500 .85rem var(--mono)}
+.op p{color:var(--muted);font-size:.98rem}
+.stack{display:grid;gap:20px;min-width:0}
+@media (max-width:520px){.op,.word{grid-template-columns:minmax(0,1fr)}}
+
+/* matrix */
+.mxwrap{overflow-x:auto;min-width:0}
+table.mx{border-collapse:collapse;width:100%;min-width:480px;font-family:var(--mono);font-size:.82rem}
+.mx th,.mx td{border:1px solid var(--line);padding:16px 14px;text-align:left;vertical-align:middle}
+.mx thead th{font-weight:500;color:var(--muted);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;background:var(--bg2)}
+.mx tbody th{font-weight:700;background:var(--bg2);font-size:.85rem;color:var(--fg)}
+.mx td.yes{color:var(--fg)}
+.mx td.yes small{display:block;color:var(--muted);font-size:.72rem;margin-top:2px}
+.mx td.no{color:var(--muted);background:repeating-linear-gradient(135deg,transparent 0 7px,var(--line) 7px 8px);font-size:.72rem}
+.engines{margin-top:18px;display:flex;flex-wrap:wrap;gap:6px 22px;font:400 .85rem var(--mono);color:var(--muted)}
+.engines b{color:var(--fg);font-weight:500}
+
+/* boundaries */
+.bound{margin-top:40px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0;border:1px solid var(--line)}
+.bound > div{padding:28px}
+.bound > div + div{border-left:1px solid var(--line);background:var(--bg2)}
+.bound h3{font-size:1.4rem;font-weight:700;letter-spacing:-.02em;margin-bottom:18px}
+.bound ul{list-style:none;margin:0;padding:0;display:grid;gap:14px}
+.bound li{display:grid;grid-template-columns:22px 1fr;gap:8px}
+.bound li::before{font:700 .95rem var(--mono);line-height:1.6}
+.claims li::before{content:"+";color:var(--okc)}
+.refuses li::before{content:"\00D7";color:var(--skip)}
+.bound li b{font-weight:600}
+.bound li span{display:block;color:var(--muted);font-size:.95rem}
+@media (max-width:800px){.bound{grid-template-columns:minmax(0,1fr)}.bound > div + div{border-left:0;border-top:1px solid var(--line)}}
+
+/* get */
+.get{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:48px;align-items:start}
+@media (max-width:900px){.get{grid-template-columns:minmax(0,1fr);gap:32px}}
+.steps{margin:0;padding:0;list-style:none;display:grid;gap:0;border-top:1px solid var(--line)}
+.steps li{display:grid;grid-template-columns:30px 1fr;gap:6px 12px;padding:16px 0;border-bottom:1px solid var(--line)}
+.steps .n{font:700 1.1rem var(--display);color:var(--accent)}
+.steps p{color:var(--muted);font-size:.97rem}
+.steps p strong{color:var(--fg);font-weight:600}
+.cmdline{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:8px;padding:10px 12px;background:var(--term-bg);color:var(--term-fg);border:1px solid var(--term-line);border-radius:4px;font:400 .85rem var(--mono)}
+.cmdline code{overflow-x:auto;white-space:nowrap;min-width:0}
+.cmdline button{flex:none;background:transparent;border:1px solid var(--term-line);color:var(--term-dim);border-radius:3px;font:500 .72rem var(--mono);padding:4px 8px;cursor:pointer}
+.cmdline button:hover{color:var(--term-fg);border-color:var(--term-dim)}
+.small{margin-top:14px;font-size:.9rem;color:var(--muted)}
+.dl{margin-top:28px;display:grid;gap:12px}
+.dl a.pack{display:grid;grid-template-columns:1fr auto;gap:4px 16px;align-items:center;padding:16px 18px;border:1px solid var(--line);border-radius:4px;text-decoration:none;background:var(--bg2)}
+.dl a.pack:hover{border-color:var(--fg)}
+.dl a.pack b{font:600 .98rem var(--body);color:var(--fg)}
+.dl a.pack span{grid-column:1;color:var(--muted);font-size:.9rem}
+.dl a.pack em{grid-row:span 2;font:500 .78rem var(--mono);font-style:normal;color:var(--accent)}
+.note-local{margin-top:20px;padding:16px 18px;border-left:3px solid var(--accent);background:var(--bg2);color:var(--muted);font-size:.95rem}
+.note-local strong{color:var(--fg);font-weight:600}
+
+footer{border-top:1px solid var(--line);padding-block:36px 56px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px;color:var(--muted);font-size:.9rem}
+footer .mono{font-family:var(--mono);font-size:.8rem}
+</style>
+
+<div class="wrap">
+
+<header class="top">
+  <a class="mark" href="#top" aria-label="Piper home">
+    <!-- Placeholder wordmark glyph: replace with the real wordmark asset -->
+    <svg viewBox="0 0 28 28" fill="none" aria-hidden="true"><rect x="1.5" y="1.5" width="25" height="25" rx="3" stroke="currentColor" stroke-width="2"/><path d="M7 9h8a4 4 0 0 1 4 4v6" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"/><path d="M15.5 16.5 19 20l3.5-3.5" stroke="var(--accent)" stroke-width="2.4" stroke-linecap="square"/></svg>
+    piper
+  </a>
+  <nav class="nav" aria-label="Primary">
+    <a class="l" href="#how">How it works</a>
+    <a class="l" href="#honesty">Warnings</a>
+    <a class="l" href="#matrix">Matrix</a>
+    <a class="l" href="#limits">Limits</a>
+    <a class="btn p" href="#get">Get the binary</a>
+  </nav>
+</header>
+
+<main id="top">
+
+<!-- HERO -->
+<div class="hero">
+  <div>
+    <p class="kicker">PostgreSQL · MySQL · MongoDB</p>
+    <h1>Know <em>what changes</em> before Piper writes a byte.</h1>
+    <p class="lede">Piper is a local CLI that migrates schema and data across PostgreSQL, MySQL, and MongoDB. It plans offline from a snapshot, <strong>names every skip, widening, and omission</strong>, and touches the target only when you run execute.</p>
+    <div class="row">
+      <a class="btn p" href="#get">Get the binary</a>
+      <a class="btn" href="starter/piper-starter.zip" download>Download starter zip</a>
+      <a class="btn q" href="#honesty">See a plan</a>
+    </div>
+    <p class="facts" aria-label="Key facts"><span>single binary</span><span>no account</span><span>no daemon</span><span>no telemetry</span></p>
+  </div>
+
+  <figure class="term" style="margin:0" aria-label="Sample output of piper plan">
+    <div class="term-bar"><b>piper plan</b><span>mysql → mongodb · sample output</span></div>
+<pre><span class="d">$</span> piper plan --target mongo
+
+<span class="ttl">Piper plan</span>
+
+  <span class="lbl">Run</span>     run_20260926T152031Z_72iukn
+  <span class="lbl">Target</span>  MongoDB
+  <span class="lbl">Steps</span>   32
+
+<span class="lbl">Warnings</span>
+  <span class="w">⚠</span> Plan warning
+     <span class="d">Field 'address.location' geometry becomes GeoJSON; values outside longitude/latitude range move to 'location_raw' as raw bytes.</span>
+  <span class="w">⚠</span> Plan warning
+     <span class="d">Field 'film.rental_rate' decimal values may lose precision as float.</span>
+  <span class="w">⚠</span> Plan warning
+     <span class="d">Piper does not migrate views. Skipped: actor_info, customer_list, …</span>
+  <span class="w">⚠</span> Plan warning
+     <span class="d">Piper does not migrate triggers. Skipped: ins_film on film, …</span>
+  <span class="w">⚠</span> Plan warning
+     <span class="d">Piper does not recreate ON UPDATE CURRENT_TIMESTAMP on MongoDB. Columns: actor.last_update, …</span>
+
+<span class="lbl">Result</span>
+
+  <span class="w">⚠</span> Created migration plan with 32 steps. 8 warning(s).
+
+<span class="lbl">Next</span>
+  <span class="i">piper execute</span><span class="cur" aria-hidden="true"></span></pre>
+    <div class="term-foot"><span>offline from snapshot</span><span>target not contacted</span></div>
+  </figure>
+</div>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <p class="eyebrow">How it works</p>
+  <h2>Inspect. Plan. Execute. Then check the work separately.</h2>
+  <p class="intro">Four commands, in that order. The plan comes from a snapshot, so reading it costs no connection to the target. The target is only for execute.</p>
+
+  <div class="pipe">
+    <div class="tabs" role="tablist" aria-label="Migration stages">
+      <button class="tab" role="tab" id="t-inspect" aria-controls="p-inspect" aria-selected="true">
+        <span class="n">1</span><span class="cmd">piper inspect</span>
+        <span class="ds">Reads the source schema and writes a snapshot to <code>.piper/</code>.</span>
+        <span class="tc">reads source</span>
+      </button>
+      <button class="tab" role="tab" id="t-plan" aria-controls="p-plan" aria-selected="false" tabindex="-1">
+        <span class="n">2</span><span class="cmd">piper plan</span>
+        <span class="ds">Maps the snapshot to the target dialect and lists every warning.</span>
+        <span class="tc">offline from snapshot</span>
+      </button>
+      <button class="tab" role="tab" id="t-execute" aria-controls="p-execute" aria-selected="false" tabindex="-1">
+        <span class="n">3</span><span class="cmd">piper execute</span>
+        <span class="ds">Creates structure and copies data. Interrupt it; <code>resume</code> picks up where it stopped.</span>
+        <span class="tc">writes target</span>
+      </button>
+      <button class="tab" role="tab" id="t-validate" aria-controls="p-validate" aria-selected="false" tabindex="-1">
+        <span class="n">4</span><span class="cmd">piper validate</span>
+        <span class="ds">Re-reads both sides and compares. It does not use execute's results.</span>
+        <span class="tc">reads both sides</span>
+      </button>
+    </div>
+
+    <div>
+      <div class="panel" id="p-inspect" role="tabpanel" aria-labelledby="t-inspect">
+        <div class="term"><div class="term-bar"><b>piper inspect</b><span>sample output</span></div>
+<pre><span class="d">$</span> piper inspect
+
+<span class="ttl">Piper inspect</span>
+
+  <span class="lbl">Run</span>       run_20261031T122133Z_572ulw
+  <span class="lbl">Entities</span>  16
+
+  <span class="o">✓</span> Found 16 entities.
+
+<span class="lbl">Next</span>
+  <span class="i">piper plan</span></pre></div>
+      </div>
+      <div class="panel" id="p-plan" role="tabpanel" aria-labelledby="t-plan" hidden>
+        <div class="term"><div class="term-bar"><b>piper plan</b><span>sample output</span></div>
+<pre><span class="d">$</span> piper plan --target mongo
+
+<span class="ttl">Piper plan</span>
+
+  <span class="lbl">Run</span>     run_20260926T152031Z_72iukn
+  <span class="lbl">Target</span>  MongoDB
+  <span class="lbl">Steps</span>   32
+
+<span class="lbl">Warnings</span>
+  <span class="w">⚠</span> Plan warning
+     <span class="d">Field 'film.rental_rate' decimal values may lose precision as float.</span>
+  <span class="w">⚠</span> Plan warning
+     <span class="d">Piper does not migrate views. Skipped: actor_info, customer_list, …</span>
+  <span class="w">⚠</span> Plan warning
+     <span class="d">Piper does not migrate triggers. Skipped: ins_film on film, …</span>
+
+<span class="lbl">Result</span>
+
+  <span class="w">⚠</span> Created migration plan with 32 steps. 8 warning(s).
+
+<span class="lbl">Next</span>
+  <span class="i">piper execute</span></pre></div>
+      </div>
+      <div class="panel" id="p-execute" role="tabpanel" aria-labelledby="t-execute" hidden>
+        <div class="term"><div class="term-bar"><b>piper execute</b><span>sample output</span></div>
+<pre><span class="d">$</span> piper execute
+
+<span class="ttl">Piper migration</span>
+  <span class="o">✓</span> Schema
+  <span class="o">✓</span> Data
+      actor             <span class="d">200 rows</span>
+      film              <span class="d">1000 rows</span>
+      rental            <span class="d">16044 rows</span>
+      store             <span class="d">2 rows</span>
+  <span class="o">✓</span> Relationships
+  <span class="o">✓</span> Deferred relationships
+
+  <span class="o">✓</span> Migration completed.
+
+  <span class="d">16 entities · 47273 rows · 32 operations · 1.5s</span></pre></div>
+      </div>
+      <div class="panel" id="p-validate" role="tabpanel" aria-labelledby="t-validate" hidden>
+        <div class="term"><div class="term-bar"><b>piper validate</b><span>sample output</span></div>
+<pre><span class="d">$</span> piper validate
+
+<span class="ttl">Piper validation</span>
+
+  <span class="lbl">Run</span>     run_20261031T122133Z_572ulw
+  <span class="lbl">Result</span>  PASSED
+
+<span class="lbl">Checks</span>
+  <span class="o">✓</span> Row counts
+  <span class="o">✓</span> Relationship integrity
+  <span class="o">✓</span> JSON values
+  <span class="o">✓</span> Numeric precision
+  <span class="o">✓</span> Non-finite float coercions
+
+<span class="lbl">Result</span>
+
+  <span class="o">✓</span> Validation passed.</pre></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="loop">
+    <div>
+      <h3>Resumable by design</h3>
+      <p>Long copies get interrupted. Piper keeps progress in <code>.piper/</code>, so <code>resume</code> continues instead of starting the target over.</p>
+    </div>
+    <div>
+      <h3>Validate does not trust execute</h3>
+      <p>A green checklist from the tool that did the writing is a claim. Validate reads both databases again and reports what it finds, including what the plan never mentioned.</p>
+    </div>
+  </div>
+</section>
+
+<!-- WHY -->
+<section id="why">
+  <p class="eyebrow">Why it exists</p>
+  <h2>A migration can succeed and still be wrong.</h2>
+  <p class="intro">Most tools measure whether the copy finished. Few say whether the data still means what it meant. Piper treats those as two different questions.</p>
+
+  <div class="cmp">
+    <div>
+      <h3>What the tool reported</h3>
+      <div class="report">
+        exit code 0<br>
+        14 tables copied<br>
+        <span class="ok">0 errors</span>
+      </div>
+    </div>
+    <div>
+      <h3>What drifted anyway</h3>
+      <ul class="drift">
+        <li><code>numeric(12,2)</code><span>read back as a float, with rounding nobody planned.</span></li>
+        <li><code>timestamptz</code><span>stored without its zone, so the same instant reads differently.</span></li>
+        <li><code>FOREIGN KEY</code><span>never recreated in the target. The log said nothing.</span></li>
+        <li><code>INDEX</code><span>dropped because the target had no name for it. Queries got slower later.</span></li>
+      </ul>
+    </div>
+  </div>
+  <p class="punch">Piper puts that list in the plan, before the first write, where you can still say no.</p>
+</section>
+
+<!-- HONESTY -->
+<section id="honesty">
+  <div class="split">
+    <div>
+      <p class="eyebrow">Plan warnings</p>
+      <h2>Skips, widenings, and omissions are named up front.</h2>
+      <p class="intro">Every plan lists what it could not do exactly as warnings — before anything runs. You read them in the terminal, and they stay in the plan record.</p>
+      <div class="words">
+        <div class="word wd"><b>widen</b><p><strong>The column lands in a broader type.</strong> Values survive, but the source's limit no longer applies.</p></div>
+        <div class="word gs"><b>omit</b><p><strong>An index or method has no equivalent.</strong> Piper names it and leaves it behind instead of inventing a stand-in.</p></div>
+        <div class="word sk"><b>skip</b><p><strong>Piper will not migrate it.</strong> Relationships and triggers the target cannot hold are listed and left behind, not dropped quietly.</p></div>
+      </div>
+      <div class="strict">
+        <h3>Strict mode, for when a warning should stop the line.</h3>
+        <p>Use it in CI, or any time you would rather be told no than accept a skip you didn't expect.</p>
+      </div>
+    </div>
+
+    <figure class="term" style="margin:0" aria-label="Sample plan output with honest warnings">
+      <div class="term-bar"><b>piper plan</b><span>mysql → mongodb · sample output</span></div>
+<pre><span class="d">$</span> piper plan --target mongo
+
+<span class="ttl">Piper plan</span>
+
+  <span class="lbl">Run</span>     run_20260926T152031Z_72iukn
+  <span class="lbl">Target</span>  MongoDB
+  <span class="lbl">Steps</span>   32
+
+<span class="lbl">Warnings</span>
+  <span class="w">⚠</span> Plan warning
+     <span class="d">Field 'film.rental_rate' decimal values may lose precision as float.</span>
+  <span class="w">⚠</span> Plan warning
+     <span class="d">Piper does not migrate views. Skipped: actor_info, customer_list, …</span>
+  <span class="w">⚠</span> Plan warning
+     <span class="d">Piper does not migrate triggers. Skipped: ins_film on film, …</span>
+  <span class="w">⚠</span> Plan warning
+     <span class="d">Piper does not recreate ON UPDATE CURRENT_TIMESTAMP on MongoDB. Columns: actor.last_update, …</span>
+
+<span class="lbl">Result</span>
+
+  <span class="hl"><span class="w">⚠</span> Created migration plan with 32 steps. 8 warning(s).</span>
+
+<span class="lbl">Next</span>
+  <span class="i">piper execute</span></pre>
+      <div class="term-foot"><span>offline from snapshot</span><span>target not contacted</span></div>
+    </figure>
+  </div>
+</section>
+
+<!-- OPERATOR -->
+<section id="operator">
+  <div class="split">
+    <div>
+      <p class="eyebrow">Operator reality</p>
+      <h2>A serious CLI, kept on your machine.</h2>
+      <p class="intro">No account, no daemon, no telemetry. Piper is one binary, and everything it produces stays in <code>.piper/</code> next to where you ran it.</p>
+      <div class="ops">
+        <div class="op"><b>Connection URLs</b><p>Come from the environment, so credentials stay out of shell history and scripts.</p></div>
+        <div class="op"><b>piper doctor</b><p>An optional preflight. Checks connectivity, direction, versions, and live-target risks before you spend time on a plan.</p></div>
+        <div class="op"><b>JSON output</b><p>Use <code>--output json</code> so CI can gate on the same checks and warnings you read in the terminal.</p></div>
+        <div class="op"><b>Local artifacts</b><p>Snapshots, plans, and progress live in <code>.piper/</code>. You can read them, commit them, or delete them.</p></div>
+      </div>
+    </div>
+
+    <div class="stack">
+      <figure class="term" style="margin:0" aria-label="Sample output of piper doctor">
+        <div class="term-bar"><b>piper doctor</b><span>mysql → postgresql · sample output</span></div>
+<pre><span class="d">$</span> piper doctor
+
+<span class="ttl">Piper doctor</span>
+
+  <span class="lbl">Source</span>  MySQL
+  <span class="lbl">Target</span>  PostgreSQL
+
+<span class="lbl">Connectivity</span>
+  <span class="o">✓</span> Database connection
+     <span class="d">Source and target are reachable.</span>
+
+<span class="lbl">Compatibility</span>
+  <span class="o">✓</span> Migration direction
+     <span class="d">MySQL → PostgreSQL is a supported migration direction.</span>
+  <span class="o">✓</span> Database version
+     <span class="d">Source and target versions are supported.</span>
+  <span class="w">⚠</span> Capability match
+     <span class="d">Target may not support some source capabilities: json</span>
+
+<span class="lbl">Safety</span>
+  <span class="w">⚠</span> Live source
+     <span class="d">Source is live and may change during migration.</span>
+  <span class="w">⚠</span> Target contents
+     <span class="d">Target already contains entities.</span>
+
+<span class="lbl">Result</span>
+
+  <span class="w">⚠</span> 3 warning(s).
+
+  <span class="d">Piper can proceed, but review the warnings before migration.</span></pre>
+      </figure>
+      <figure class="term" style="margin:0" aria-label="Sample JSON output for CI">
+        <div class="term-bar"><b>piper doctor --output json</b><span>for CI · sample output</span></div>
+<pre><span class="d">{</span>
+  <span class="i">"checks"</span><span class="d">:</span> <span class="d">[</span>
+    <span class="d">{</span>
+      <span class="i">"name"</span><span class="d">:</span> <span class="o">"capability_match"</span><span class="d">,</span>
+      <span class="i">"status"</span><span class="d">:</span> <span class="w">"warning"</span><span class="d">,</span>
+      <span class="i">"message"</span><span class="d">:</span> <span class="o">"Target may not support some source capabilities."</span><span class="d">,</span>
+      <span class="i">"details"</span><span class="d">:</span> <span class="d">[</span><span class="o">"json"</span><span class="d">]</span>
+    <span class="d">}</span>
+  <span class="d">]</span>
+<span class="d">}</span></pre>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- MATRIX -->
+<section id="matrix">
+  <div class="split">
+    <div>
+      <p class="eyebrow">Capability matrix</p>
+      <h2>Six directions. Never the same dialect.</h2>
+      <p class="intro">Piper only plans moves where the dialect changes, because that is where meaning drifts. Same-dialect copies are out of scope on purpose.</p>
+      <div class="engines"><span><b>PostgreSQL</b> 14+</span><span><b>MySQL</b> 8.0+</span><span><b>MongoDB</b> 7.0+</span></div>
+    </div>
+    <div class="mxwrap">
+      <table class="mx">
+        <caption style="position:absolute;left:-9999px">Supported source and target pairs</caption>
+        <thead><tr><th scope="col">from ↓ &nbsp;to →</th><th scope="col">PostgreSQL</th><th scope="col">MySQL</th><th scope="col">MongoDB</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">PostgreSQL</th><td class="no">same dialect<br>out of scope</td><td class="yes">pg → mysql<small>plan · execute · validate</small></td><td class="yes">pg → mongo<small>plan · execute · validate</small></td></tr>
+          <tr><th scope="row">MySQL</th><td class="yes">mysql → pg<small>plan · execute · validate</small></td><td class="no">same dialect<br>out of scope</td><td class="yes">mysql → mongo<small>plan · execute · validate</small></td></tr>
+          <tr><th scope="row">MongoDB</th><td class="yes">mongo → pg<small>plan · execute · validate</small></td><td class="yes">mongo → mysql<small>plan · execute · validate</small></td><td class="no">same dialect<br>out of scope</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- LIMITS -->
+<section id="limits">
+  <p class="eyebrow">Trust boundaries</p>
+  <h2>What v1 claims, and what it refuses.</h2>
+  <p class="intro">A short list of promises is easier to keep than a long one. Everything on the right is a decision, not a gap we forgot.</p>
+  <div class="bound">
+    <div class="claims">
+      <h3>Piper claims</h3>
+      <ul>
+        <li><div><b>Six cross-dialect directions</b><span>Between PostgreSQL, MySQL, and MongoDB.</span></div></li>
+        <li><div><b>Schema and data, with a plan first</b><span>Warnings are listed before any write.</span></div></li>
+        <li><div><b>Resume after interruption</b><span>Progress is kept locally.</span></div></li>
+        <li><div><b>Independent validation</b><span>Validate re-reads both sides.</span></div></li>
+        <li><div><b>Local and private</b><span>Single binary. Artifacts stay in <code>.piper/</code>.</span></div></li>
+      </ul>
+    </div>
+    <div class="refuses">
+      <h3>Piper refuses</h3>
+      <ul>
+        <li><div><b>Same-dialect migration</b><span>Out of scope on purpose.</span></div></li>
+        <li><div><b>Full routine and trigger translation</b><span>They are named and skipped, not rewritten.</span></div></li>
+        <li><div><b>PostGIS as a support claim</b><span>Spatial data is not a promised mapping.</span></div></li>
+        <li><div><b>Live sync and CDC</b><span>Piper moves a snapshot. It does not follow changes.</span></div></li>
+        <li><div><b>Multi-schema in one run</b><span>One schema per run.</span></div></li>
+        <li><div><b>Roles and grants</b><span>Access control is not migrated.</span></div></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- GET -->
+<section id="get">
+  <div class="get">
+    <div>
+      <p class="eyebrow">Get started</p>
+      <h2>Run doctor, then read your first plan.</h2>
+      <p class="intro">Piper is a single local binary. Nothing to sign up for, nothing that phones home. Download the binary alone, or the starter zip with a ready folder layout.</p>
+
+      <div class="dl" id="download">
+        <a class="pack" href="downloads/piper-darwin-arm64" download>
+          <b>Binary only</b>
+          <span>macOS Apple Silicon · run with <code>./piper-darwin-arm64</code></span>
+          <em>download</em>
+        </a>
+        <a class="pack" href="starter/piper-starter.zip" download>
+          <b>Starter zip</b>
+          <span>Binary + empty <code>notes/</code> and <code>scripts/</code> · unzip and run from the folder root</span>
+          <em>zip</em>
+        </a>
+      </div>
+
+      <p class="note-local"><strong>No global install required.</strong> Piper runs from whatever directory you put it in — <code>./piper doctor</code> is enough. Putting it on your PATH is optional if you want <code>piper</code> available everywhere.</p>
+      <p class="small">Current build: darwin/arm64 · SHA-256 in <code>downloads/piper-darwin-arm64.sha256</code>. Other platforms: build from <code>piper-go</code> with <code>go build -o piper ./cmd/piper</code>.</p>
+    </div>
+
+    <ol class="steps">
+      <li><span class="n">1</span><div><p><strong>Unzip the starter</strong> (or drop the binary in any folder) and <code>cd</code> into that directory.</p></div></li>
+      <li><span class="n">2</span><div><p><strong>Point it at your databases</strong> with env URLs (<code>env.example</code> in the zip), then run the optional preflight.</p>
+        <div class="cmdline"><code>./piper doctor</code><button type="button" data-copy="./piper doctor">Copy</button></div></div></li>
+      <li><span class="n">3</span><div><p><strong>Inspect, then read the plan.</strong> Nothing is written to the target yet. Pick a cross-dialect target.</p>
+        <div class="cmdline"><code>./piper inspect &amp;&amp; ./piper plan --target mongo</code><button type="button" data-copy="./piper inspect && ./piper plan --target mongo">Copy</button></div></div></li>
+      <li><span class="n">4</span><div><p><strong>Execute when the warnings are acceptable,</strong> then validate.</p>
+        <div class="cmdline"><code>./piper execute &amp;&amp; ./piper validate</code><button type="button" data-copy="./piper execute && ./piper validate">Copy</button></div></div></li>
+    </ol>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <span>piper · inspect, plan, execute, validate</span>
+  <span class="mono">PostgreSQL 14+ · MySQL 8.0+ · MongoDB 7.0+</span>
+</footer>
+
+</div>
+
+<script>
+(function(){
+  var tabs=[].slice.call(document.querySelectorAll('[role="tab"]'));
+  function select(t){
+    tabs.forEach(function(x){
+      var on=x===t;
+      x.setAttribute('aria-selected',on?'true':'false');
+      x.tabIndex=on?0:-1;
+      var p=document.getElementById(x.getAttribute('aria-controls'));
+      if(p){p.hidden=!on;}
+    });
+  }
+  tabs.forEach(function(t,i){
+    t.addEventListener('click',function(){select(t);});
+    t.addEventListener('keydown',function(e){
+      var j=-1;
+      if(e.key==='ArrowDown'||e.key==='ArrowRight'){j=(i+1)%tabs.length;}
+      else if(e.key==='ArrowUp'||e.key==='ArrowLeft'){j=(i+tabs.length-1)%tabs.length;}
+      if(j>-1){e.preventDefault();tabs[j].focus();select(tabs[j]);}
+    });
+  });
+
+  [].slice.call(document.querySelectorAll('[data-copy]')).forEach(function(b){
+    function fallback(){
+      var c=b.previousElementSibling;
+      if(!c){return;}
+      var r=document.createRange();r.selectNodeContents(c);
+      var s=window.getSelection();s.removeAllRanges();s.addRange(r);
+    }
+    b.addEventListener('click',function(){
+      var txt=b.getAttribute('data-copy');
+      var label=b.textContent;
+      function done(){b.textContent='Copied';setTimeout(function(){b.textContent=label;},1400);}
+      try{
+        if(navigator.clipboard&&navigator.clipboard.writeText){
+          navigator.clipboard.writeText(txt).then(done,fallback);
+        }else{fallback();}
+      }catch(err){fallback();}
+    });
+  });
+})();
+</script>
+
+</body></html>
