@@ -223,8 +223,22 @@ table.mx{border-collapse:collapse;width:100%;min-width:480px;font-family:var(--m
 .note-local{margin-top:20px;padding:16px 18px;border-left:3px solid var(--accent);background:var(--bg2);color:var(--muted);font-size:.95rem}
 .note-local strong{color:var(--fg);font-weight:600}
 
+/* creator */
+#creator{text-align:center}
+#creator .eyebrow{margin-inline:auto}
+.creator{display:flex;flex-direction:column;align-items:center;gap:18px;max-width:34em;margin-inline:auto}
+.creator img{width:72px;height:72px;border-radius:4px;object-fit:cover;border:1px solid var(--line);background:var(--bg2)}
+.creator h2{font-size:clamp(1.55rem,2.8vw,2rem);max-width:none}
+.creator .intro{margin-top:10px;margin-inline:auto}
+.creator .links{margin-top:18px;display:flex;flex-wrap:wrap;justify-content:center;gap:10px 18px;align-items:center;font:500 .95rem var(--body)}
+.creator .links a{color:var(--fg);text-decoration:underline;text-underline-offset:4px;text-decoration-color:var(--line)}
+.creator .links a:hover{text-decoration-color:var(--fg)}
+.creator .links .sep{color:var(--line);font-weight:400}
+
 footer{border-top:1px solid var(--line);padding-block:36px 56px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px;color:var(--muted);font-size:.9rem}
 footer .mono{font-family:var(--mono);font-size:.8rem}
+footer a{color:inherit;text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--line)}
+footer a:hover{color:var(--fg);text-decoration-color:var(--fg)}
 </style>
 
 <div class="wrap">
@@ -703,10 +717,27 @@ footer .mono{font-family:var(--mono);font-size:.8rem}
   </div>
 </section>
 
+<!-- CREATOR -->
+<section id="creator">
+  <p class="eyebrow">Built by</p>
+  <div class="creator">
+    <img src="https://avatars.githubusercontent.com/u/105650335?v=4&amp;s=160" width="72" height="72" alt="Adam — The Developer" loading="lazy" decoding="async">
+    <div>
+      <h2>Adam — The Developer</h2>
+      <p class="intro">I made Piper. If something breaks, a download looks wrong, or you want to report an issue or request additional features, email me — I usually reply pretty quickly.</p>
+      <div class="links">
+        <a href="https://a-thedeveloper.vercel.app" rel="noopener noreferrer">a-thedeveloper.vercel.app</a>
+        <span class="sep" aria-hidden="true">·</span>
+        <a href="mailto:adaminiature@gmail.com">adaminiature@gmail.com</a>
+      </div>
+    </div>
+  </div>
+</section>
+
 </main>
 
 <footer>
-  <span>piper · inspect, plan, execute, validate</span>
+  <span>piper · inspect, plan, execute, validate · made by <a href="https://a-thedeveloper.vercel.app" rel="noopener noreferrer">Adam</a></span>
   <span class="mono">PostgreSQL 14+ · MySQL 8.0+ · MongoDB 7.0+</span>
 </footer>
 
