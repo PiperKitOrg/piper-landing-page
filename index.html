@@ -128,19 +128,29 @@ h2{font-weight:700;font-size:clamp(1.9rem,3.8vw,3rem);line-height:1.05;letter-sp
 .loop p{margin-top:8px;color:var(--muted);font-size:.98rem}
 @media (max-width:700px){.loop{grid-template-columns:minmax(0,1fr)}.loop > div + div{border-left:0;border-top:1px solid var(--line)}}
 
-/* drift comparison */
-.cmp{margin-top:40px;display:grid;grid-template-columns:minmax(0,.7fr) minmax(0,1.3fr);gap:0;border:1px solid var(--line)}
-.cmp > div{padding:28px}
-.cmp > div + div{border-left:1px solid var(--line);background:var(--bg2)}
-.cmp h3{font:500 .78rem var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:16px}
-.report{font:400 .95rem/1.8 var(--mono)}
-.report .ok{color:var(--okc)}
-.drift{list-style:none;margin:0;padding:0;display:grid;gap:14px}
-.drift li{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;align-items:baseline}
-.drift code{color:var(--skip);font-weight:500}
-.drift span{color:var(--muted)}
-.punch{margin-top:32px;font:700 clamp(1.3rem,2.4vw,1.8rem)/1.2 var(--display);letter-spacing:-.02em;max-width:24em}
-@media (max-width:800px){.cmp{grid-template-columns:minmax(0,1fr)}.cmp > div + div{border-left:0;border-top:1px solid var(--line)}}
+/* why: success vs silent loss board */
+.loss{margin-top:40px;border:1px solid var(--line);border-radius:4px;overflow:hidden;background:var(--bg)}
+.loss-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 18px;padding:14px 18px;border-bottom:1px solid var(--line);background:var(--bg2)}
+.loss-title{font:500 .72rem var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.loss-stats{display:flex;flex-wrap:wrap;gap:8px 16px;font:400 .85rem/1.2 var(--mono);color:var(--fg)}
+.loss-stats .ok{color:var(--okc)}
+.loss-table{width:100%;border-collapse:collapse;table-layout:fixed}
+.loss-table th,.loss-table td{padding:16px 18px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.loss-table tr:last-child td{border-bottom:0}
+.loss-table thead th{font:500 .68rem var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--bg2);padding-block:12px}
+.loss-table .src{width:22%;font:500 .9rem var(--mono);color:var(--fg);word-break:break-word}
+.loss-table .evt{width:48%;color:var(--muted);font-size:.98rem;line-height:1.45}
+.loss-table .tag{width:30%;font:500 .85rem var(--mono);white-space:nowrap}
+.loss-table .tag .warn{color:var(--t-warn)}
+.loss-table .tag .skip{color:var(--t-skip)}
+.loss-table .tag .kind{color:var(--muted);font-weight:400}
+.why-close{margin-top:36px;max-width:34em}
+.why-close .punch{margin-top:10px;font:700 clamp(1.25rem,2.2vw,1.7rem)/1.25 var(--display);letter-spacing:-.02em}
+.why-close .mark-write{text-decoration:underline;text-decoration-color:var(--accent);text-decoration-thickness:2px;text-underline-offset:4px}
+@media (max-width:720px){
+  .loss{overflow-x:auto}
+  .loss-table{min-width:560px}
+}
 
 /* honesty words */
 .words{margin-top:36px;border-top:1px solid var(--line)}
@@ -411,26 +421,53 @@ footer .mono{font-family:var(--mono);font-size:.8rem}
   <h2>A migration can succeed and still be wrong.</h2>
   <p class="intro">Most tools measure whether the copy finished. Few say whether the data still means what it meant. Piper treats those as two different questions.</p>
 
-  <div class="cmp">
-    <div>
-      <h3>What the tool reported</h3>
-      <div class="report">
-        exit code 0<br>
-        14 tables copied<br>
+  <div class="loss">
+    <div class="loss-head">
+      <span class="loss-title">What the tool reported</span>
+      <div class="loss-stats">
+        <span>exit code 0</span>
+        <span>14 tables copied</span>
         <span class="ok">0 errors</span>
       </div>
     </div>
-    <div>
-      <h3>What drifted anyway</h3>
-      <ul class="drift">
-        <li><code>numeric(12,2)</code><span>read back as a float, with rounding nobody planned.</span></li>
-        <li><code>timestamptz</code><span>stored without its zone, so the same instant reads differently.</span></li>
-        <li><code>FOREIGN KEY</code><span>never recreated in the target. The log said nothing.</span></li>
-        <li><code>INDEX</code><span>dropped because the target had no name for it. Queries got slower later.</span></li>
-      </ul>
-    </div>
+    <table class="loss-table">
+      <caption style="position:absolute;left:-9999px">Silent losses after a successful migration report</caption>
+      <thead>
+        <tr>
+          <th scope="col">In the source</th>
+          <th scope="col">What happened anyway</th>
+          <th scope="col">Where Piper names it</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="src">numeric(12,2)</td>
+          <td class="evt">Read back as a float. Rounding nobody planned.</td>
+          <td class="tag"><span class="warn">WARN</span> <span class="kind">type mapping</span></td>
+        </tr>
+        <tr>
+          <td class="src">timestamptz</td>
+          <td class="evt">Stored without its zone. The same instant reads differently.</td>
+          <td class="tag"><span class="warn">WARN</span> <span class="kind">type mapping</span></td>
+        </tr>
+        <tr>
+          <td class="src">FOREIGN KEY</td>
+          <td class="evt">Never recreated in the target. The log said nothing.</td>
+          <td class="tag"><span class="skip">SKIP</span> <span class="kind">relationship</span></td>
+        </tr>
+        <tr>
+          <td class="src">INDEX</td>
+          <td class="evt">Dropped because the target had no name for it. Queries got slower later.</td>
+          <td class="tag"><span class="warn">WARN</span> <span class="kind">index</span></td>
+        </tr>
+      </tbody>
+    </table>
   </div>
-  <p class="punch">For the mappings and catalog facts Piper inspects, those kinds of losses show up as plan warnings — before the first write, where you can still say no.</p>
+
+  <div class="why-close">
+    <p class="eyebrow">So the plan says it first</p>
+    <p class="punch">For the mappings and catalog facts Piper inspects, these losses show up as plan warnings, <span class="mark-write">before the first write</span>, where you can still say no.</p>
+  </div>
 </section>
 
 <!-- HONESTY -->
