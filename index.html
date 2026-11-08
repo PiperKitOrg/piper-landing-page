@@ -241,7 +241,7 @@ footer .mono{font-family:var(--mono);font-size:.8rem}
   <div>
     <p class="kicker">PostgreSQL · MySQL · MongoDB</p>
     <h1>Know <em>what changes</em> before Piper writes a byte.</h1>
-    <p class="lede">Piper is a local CLI that migrates schema and data across PostgreSQL, MySQL, and MongoDB. It plans offline from a snapshot, <strong>names every skip, widening, and omission</strong>, and touches the target only when you run execute.</p>
+    <p class="lede">Piper is a local CLI that migrates schema and data across PostgreSQL, MySQL, and MongoDB. It plans offline from a snapshot, <strong>warns on skips, widenings, and omissions its mappings know about</strong>, and touches the target only when you run execute.</p>
     <div class="row">
       <a class="btn p" href="#get">Get the binary</a>
       <a class="btn" href="#get">Starter zips by platform</a>
@@ -297,7 +297,7 @@ footer .mono{font-family:var(--mono);font-size:.8rem}
       </button>
       <button class="tab" role="tab" id="t-plan" aria-controls="p-plan" aria-selected="false" tabindex="-1">
         <span class="n">2</span><span class="cmd">piper plan</span>
-        <span class="ds">Maps the snapshot to the target dialect and lists every warning.</span>
+        <span class="ds">Maps the snapshot to the target dialect and lists the plan warnings it raises.</span>
         <span class="tc">offline from snapshot</span>
       </button>
       <button class="tab" role="tab" id="t-execute" aria-controls="p-execute" aria-selected="false" tabindex="-1">
@@ -400,7 +400,7 @@ footer .mono{font-family:var(--mono);font-size:.8rem}
     </div>
     <div>
       <h3>Validate does not trust execute</h3>
-      <p>A green checklist from the tool that did the writing is a claim. Validate reads both databases again and reports what it finds, including what the plan never mentioned.</p>
+      <p>A green checklist from the tool that did the writing is a claim. Validate re-reads both databases and runs its own checks — row counts, relationship integrity, JSON values, numeric precision — instead of trusting execute's report.</p>
     </div>
   </div>
 </section>
@@ -430,7 +430,7 @@ footer .mono{font-family:var(--mono);font-size:.8rem}
       </ul>
     </div>
   </div>
-  <p class="punch">Piper puts that list in the plan, before the first write, where you can still say no.</p>
+  <p class="punch">For the mappings and catalog facts Piper inspects, those kinds of losses show up as plan warnings — before the first write, where you can still say no.</p>
 </section>
 
 <!-- HONESTY -->
@@ -438,12 +438,12 @@ footer .mono{font-family:var(--mono);font-size:.8rem}
   <div class="split">
     <div>
       <p class="eyebrow">Plan warnings</p>
-      <h2>Skips, widenings, and omissions are named up front.</h2>
-      <p class="intro">Every plan lists what it could not do exactly as warnings — before anything runs. You read them in the terminal, and they stay in the plan record.</p>
+      <h2>Known skips, widenings, and omissions are named up front.</h2>
+      <p class="intro">When the planner cannot preserve a fact exactly — within the type maps, index rules, and catalog objects it inspects — it records a warning before anything runs. You read those in the terminal, and they stay in the plan record. That is not a claim that every possible semantic drift is covered.</p>
       <div class="words">
         <div class="word wd"><b>widen</b><p><strong>The column lands in a broader type.</strong> Values survive, but the source's limit no longer applies.</p></div>
-        <div class="word gs"><b>omit</b><p><strong>An index or method has no equivalent.</strong> Piper names it and leaves it behind instead of inventing a stand-in.</p></div>
-        <div class="word sk"><b>skip</b><p><strong>Piper will not migrate it.</strong> Relationships and triggers the target cannot hold are listed and left behind, not dropped quietly.</p></div>
+        <div class="word gs"><b>omit</b><p><strong>An index or method has no equivalent.</strong> Piper names the ones it refuses to invent a stand-in for.</p></div>
+        <div class="word sk"><b>skip</b><p><strong>Piper will not migrate it.</strong> Views, triggers, routines, and relationships it cannot hold on the target are listed and left behind, not dropped quietly.</p></div>
       </div>
       <div class="strict">
         <h3>Strict mode, for when a warning should stop the line.</h3>
@@ -575,15 +575,15 @@ footer .mono{font-family:var(--mono);font-size:.8rem}
 <section id="limits">
   <p class="eyebrow">Trust boundaries</p>
   <h2>What v1 claims, and what it refuses.</h2>
-  <p class="intro">A short list of promises is easier to keep than a long one. Everything on the right is a decision, not a gap we forgot.</p>
+  <p class="intro">A short list of promises is easier to keep than a long one. Everything on the right is a decision, not a gap we forgot. Warnings cover mappings and catalog facts Piper inspects — not every imaginable semantic change.</p>
   <div class="bound">
     <div class="claims">
       <h3>Piper claims</h3>
       <ul>
         <li><div><b>Six cross-dialect directions</b><span>Between PostgreSQL, MySQL, and MongoDB.</span></div></li>
-        <li><div><b>Schema and data, with a plan first</b><span>Warnings are listed before any write.</span></div></li>
+        <li><div><b>Schema and data, with a plan first</b><span>Detected plan warnings are listed before any write.</span></div></li>
         <li><div><b>Resume after interruption</b><span>Progress is kept locally.</span></div></li>
-        <li><div><b>Independent validation</b><span>Validate re-reads both sides.</span></div></li>
+        <li><div><b>Independent validation</b><span>Validate re-reads both sides and runs its own finite check set.</span></div></li>
         <li><div><b>Local and private</b><span>Single binary. Artifacts stay in <code>.piper/</code>.</span></div></li>
       </ul>
     </div>
@@ -593,6 +593,7 @@ footer .mono{font-family:var(--mono);font-size:.8rem}
         <li><div><b>Same-dialect migration</b><span>Out of scope on purpose.</span></div></li>
         <li><div><b>Full routine and trigger translation</b><span>They are named and skipped, not rewritten.</span></div></li>
         <li><div><b>PostGIS as a support claim</b><span>Spatial data is not a promised mapping.</span></div></li>
+        <li><div><b>Omniscient drift detection</b><span>Unmodeled semantic changes can still exist outside the warning and validate surfaces.</span></div></li>
         <li><div><b>Live sync and CDC</b><span>Piper moves a snapshot. It does not follow changes.</span></div></li>
         <li><div><b>Multi-schema in one run</b><span>One schema per run.</span></div></li>
         <li><div><b>Roles and grants</b><span>Access control is not migrated.</span></div></li>
