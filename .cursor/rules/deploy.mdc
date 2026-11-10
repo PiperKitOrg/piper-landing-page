@@ -1,0 +1,17 @@
+---
+description: When the user says deploy, commit, push, and start a Vercel prod deploy without waiting
+alwaysApply: true
+---
+
+# Deploy shorthand
+
+When the user says **deploy** (alone or as the clear intent of the message, e.g. "deploy this", "commit and deploy"):
+
+1. **Commit** all relevant uncommitted work using the normal git commit protocol (status, diff, log; HEREDOC message; no secrets; no amend unless amend rules apply).
+2. **Push** to `origin` for the current branch (`git push -u origin HEAD` if upstream is missing).
+3. **Start** a Vercel production deploy: `npx vercel --prod --yes` (or the linked project equivalent).
+4. **Do not wait** for the deploy to finish. Kick it off in the background (`block_until_ms: 0` or equivalent) and end the turn after reporting the commit SHA / push result and that the deploy was started. Do not poll, AwaitShell for Ready, or block on Vercel completion unless the user later asks for status.
+
+If there is nothing to commit, still push if ahead of remote, then start the Vercel deploy the same fire-and-forget way. If the working tree is clean and the branch is already pushed, only start the deploy.
+
+This message authorizes commit + push + deploy for that turn; do not ask for a second confirmation.
