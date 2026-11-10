@@ -251,6 +251,7 @@ footer a:hover{color:var(--fg);text-decoration-color:var(--fg)}
   </a>
   <nav class="nav" aria-label="Primary">
     <a class="l" href="#how">How it works</a>
+    <a class="l" href="#progress">Progress</a>
     <a class="l" href="#honesty">Warnings</a>
     <a class="l" href="#matrix">Matrix</a>
     <a class="l" href="#limits">Limits</a>
@@ -381,6 +382,9 @@ footer a:hover{color:var(--fg);text-decoration-color:var(--fg)}
 <pre><span class="d">$</span> piper execute
 
 <span class="ttl">Piper migration</span>
+
+  <span class="d">Keep source data unchanged until migration completes.</span>
+
   <span class="o">✓</span> Schema
   <span class="o">✓</span> Data
       actor             <span class="d">200 rows</span>
@@ -426,6 +430,40 @@ footer a:hover{color:var(--fg);text-decoration-color:var(--fg)}
       <h3>Validate does not trust execute</h3>
       <p>A green checklist from the tool that did the writing is a claim. Validate re-reads both databases and runs its own checks — row counts, relationship integrity, JSON values, numeric precision — instead of trusting execute's report.</p>
     </div>
+  </div>
+</section>
+
+<!-- PROGRESS -->
+<section id="progress">
+  <div class="split">
+    <div>
+      <p class="eyebrow">During execute</p>
+      <h2>Watch schema finish, then each table copy as it runs.</h2>
+      <p class="intro">Execute prints a live stage list: schema first, then data with per-table row counts and a batch bar for the table still moving. Resume marks tables the ledger already finished as <code>already completed</code>, and keeps the source-data rule visible under the heading.</p>
+      <div class="ops">
+        <div class="op"><b>Source stays still</b><p>One line under the title reminds you Piper copies a static dataset — it does not sync ongoing writes.</p></div>
+        <div class="op"><b>Batch progress</b><p>Large tables show filled/empty blocks and <code>done/total batches</code> so a long copy is measurable, not a blank wait.</p></div>
+        <div class="op"><b>Resume is explicit</b><p>Tables finished in an earlier attempt read <code>already completed</code>. Partially finished ones continue from the checkpoint.</p></div>
+      </div>
+    </div>
+
+    <figure class="term" style="margin:0" aria-label="Sample live output of piper execute">
+      <div class="term-bar"><b>piper execute</b><span>mysql → postgres · in progress</span></div>
+<pre><span class="d">$</span> piper --yes execute
+
+<span class="ttl">Piper migration</span>
+
+  <span class="d">Keep source data unchanged until migration completes.</span>
+
+  <span class="o">✓</span> Schema
+  <span class="i">•</span> Data
+      departments    <span class="d">9 rows</span>
+      employees      <span class="d">300024 rows</span>
+      dept_emp       <span class="d">331603 rows</span>
+      dept_manager   <span class="d">24 rows</span>
+      salaries       <span class="d">[███░░░░░░░░░░░░░░░░░]</span>  <span class="d">452/2845 batches</span></pre>
+      <div class="term-foot"><span>writes target</span><span>interrupt → piper resume</span></div>
+    </figure>
   </div>
 </section>
 
@@ -724,7 +762,7 @@ footer a:hover{color:var(--fg);text-decoration-color:var(--fg)}
     <img src="https://avatars.githubusercontent.com/u/105650335?v=4&amp;s=160" width="72" height="72" alt="Adam — The Developer" loading="lazy" decoding="async">
     <div>
       <h2>Adam — The Developer</h2>
-      <p class="intro">I made Piper. If something breaks, a download looks wrong, or you want to report an issue or request additional features, email me — I usually reply pretty quickly.</p>
+      <p class="intro">Built by me ❤️, shaped by your feedback. Whether you’ve found a bug, need help with a download, or have an idea for Piper, my inbox is open — and I’m usually quick to reply.</p>
       <div class="links">
         <a href="https://a-thedeveloper.vercel.app" rel="noopener noreferrer">a-thedeveloper.vercel.app</a>
         <span class="sep" aria-hidden="true">·</span>
