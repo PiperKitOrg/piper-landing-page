@@ -90,6 +90,24 @@ h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
 @keyframes blink{to{visibility:hidden}}
 @media (prefers-reduced-motion:reduce){.cur{animation:none}html{scroll-behavior:auto}}
 
+/* hero run animation — stable DOM; no per-frame innerHTML rebuilds */
+.term-run{position:relative}
+.term-run .term-bar{align-items:center}
+.term-stages{display:flex;flex-wrap:wrap;gap:6px 12px;padding:8px 14px;border-bottom:1px solid var(--term-line);font:500 .68rem var(--mono);letter-spacing:.04em;text-transform:uppercase;color:var(--term-dim)}
+.term-stages span{opacity:.4;white-space:nowrap;transition:opacity .35s ease,color .35s ease}
+.term-stages span[aria-current="step"]{opacity:1;color:var(--t-title)}
+.term-stages span.is-done{opacity:.8;color:var(--t-ok)}
+.term-run pre{min-height:24rem;max-height:24rem;overflow-y:auto;white-space:pre-wrap;word-break:break-word}
+.term-run .run-cmd{color:var(--term-fg)}
+.term-run .run-bar{color:var(--t-info)}
+.term-run .run-bar-meta{color:var(--term-dim)}
+.term-run .run-body{transition:opacity .28s ease}
+.term-run.is-switching .run-body{opacity:0}
+@media (prefers-reduced-motion:reduce){
+  .term-stages{display:none}
+  .term-run .run-body{transition:none}
+}
+
 /* hero */
 .hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.12fr);gap:48px;padding-block:64px 72px;align-items:center}
 .kicker{font:500 .78rem var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:20px}
@@ -277,35 +295,16 @@ footer a:hover{color:var(--fg);text-decoration-color:var(--fg)}
     <p class="facts" aria-label="Key facts"><span>single binary</span><span>no account</span><span>no daemon</span><span>no telemetry</span></p>
   </div>
 
-  <figure class="term" style="margin:0" aria-label="Sample output of piper plan">
-    <div class="term-bar"><b>piper plan</b><span>mysql → mongodb · sample output</span></div>
-<pre><span class="d">$</span> piper plan --target mongo
-
-<span class="ttl">Piper plan</span>
-
-  <span class="lbl">Run</span>     run_20260926T152031Z_72iukn
-  <span class="lbl">Target</span>  MongoDB
-  <span class="lbl">Steps</span>   32
-
-<span class="lbl">Warnings</span>
-  <span class="w">⚠</span> Plan warning
-     <span class="d">Field 'address.location' geometry becomes GeoJSON; values outside longitude/latitude range move to 'location_raw' as raw bytes.</span>
-  <span class="w">⚠</span> Plan warning
-     <span class="d">Field 'film.rental_rate' decimal values may lose precision as float.</span>
-  <span class="w">⚠</span> Plan warning
-     <span class="d">Piper does not migrate views. Skipped: actor_info, customer_list, …</span>
-  <span class="w">⚠</span> Plan warning
-     <span class="d">Piper does not migrate triggers. Skipped: ins_film on film, …</span>
-  <span class="w">⚠</span> Plan warning
-     <span class="d">Piper does not recreate ON UPDATE CURRENT_TIMESTAMP on MongoDB. Columns: actor.last_update, …</span>
-
-<span class="lbl">Result</span>
-
-  <span class="w">⚠</span> Created migration plan with 32 steps. 8 warning(s).
-
-<span class="lbl">Next</span>
-  <span class="i">piper execute</span><span class="cur" aria-hidden="true"></span></pre>
-    <div class="term-foot"><span>offline from snapshot</span><span>target not contacted</span></div>
+  <figure class="term term-run" style="margin:0" id="hero-run" aria-label="Animated sample Piper run: doctor, inspect, plan, execute">
+    <div class="term-bar"><b id="hero-run-title">piper doctor</b><span id="hero-run-meta">mysql → mongodb · sample run</span></div>
+    <div class="term-stages" id="hero-run-stages" aria-hidden="true">
+      <span data-stage="doctor" aria-current="step">doctor</span>
+      <span data-stage="inspect">inspect</span>
+      <span data-stage="plan">plan</span>
+      <span data-stage="execute">execute</span>
+    </div>
+<pre id="hero-run-body" class="run-body" aria-live="polite"><span class="d">$</span> <span class="run-cmd"></span><span class="cur" aria-hidden="true"></span></pre>
+    <div class="term-foot"><span id="hero-run-foot-l">preflight</span><span id="hero-run-foot-r">source + target contacted</span></div>
   </figure>
 </div>
 
@@ -823,6 +822,305 @@ footer a:hover{color:var(--fg);text-decoration-color:var(--fg)}
       }catch(err){fallback();}
     });
   });
+
+  /* Hero: fake piper doctor → inspect → plan → execute
+     Append-only DOM updates (no full innerHTML rebuilds) so output does not flicker. */
+  var runRoot=document.getElementById('hero-run');
+  var runBody=document.getElementById('hero-run-body');
+  var runTitle=document.getElementById('hero-run-title');
+  var runMeta=document.getElementById('hero-run-meta');
+  var runFootL=document.getElementById('hero-run-foot-l');
+  var runFootR=document.getElementById('hero-run-foot-r');
+  var runStages=document.getElementById('hero-run-stages');
+  if(!runRoot||!runBody){return;}
+
+  var BAR_WIDTH=20;
+  var BAR_TOTAL=64;
+  var stages=[
+    {
+      id:'doctor',
+      title:'piper doctor',
+      meta:'mysql → mongodb · sample run',
+      foot:['preflight','source + target contacted'],
+      cmd:'piper doctor',
+      lines:[
+        '<span class="ttl">Piper doctor</span>',
+        '',
+        '  <span class="lbl">Source</span>  MySQL',
+        '  <span class="lbl">Target</span>  MongoDB',
+        '',
+        '<span class="lbl">Connectivity</span>',
+        '  <span class="o">✓</span> Database connection',
+        '     <span class="d">Source and target are reachable.</span>',
+        '',
+        '<span class="lbl">Compatibility</span>',
+        '  <span class="o">✓</span> Migration direction',
+        '     <span class="d">MySQL → MongoDB is a supported migration direction.</span>',
+        '  <span class="o">✓</span> Database version',
+        '     <span class="d">Source and target versions are supported.</span>',
+        '',
+        '<span class="lbl">Safety</span>',
+        '  <span class="w">⚠</span> Live source',
+        '     <span class="d">Source is live and may change during migration.</span>',
+        '',
+        '<span class="lbl">Result</span>',
+        '',
+        '  <span class="w">⚠</span> 1 warning(s).',
+        '',
+        '  <span class="d">Piper can proceed, but review the warnings before migration.</span>',
+        '',
+        '<span class="lbl">Next</span>',
+        '  <span class="i">piper inspect</span>'
+      ]
+    },
+    {
+      id:'inspect',
+      title:'piper inspect',
+      meta:'mysql → mongodb · sample run',
+      foot:['reads source','writes .piper/ snapshot'],
+      cmd:'piper inspect',
+      lines:[
+        '<span class="ttl">Piper inspect</span>',
+        '',
+        '  <span class="lbl">Run</span>       run_20260926T152031Z_72iukn',
+        '  <span class="lbl">Entities</span>  16',
+        '',
+        '  <span class="o">✓</span> Found 16 entities.',
+        '',
+        '<span class="lbl">Next</span>',
+        '  <span class="i">piper plan --target mongo</span>'
+      ]
+    },
+    {
+      id:'plan',
+      title:'piper plan',
+      meta:'mysql → mongodb · sample run',
+      foot:['offline from snapshot','target not contacted'],
+      cmd:'piper plan --target mongo',
+      lines:[
+        '<span class="ttl">Piper plan</span>',
+        '',
+        '  <span class="lbl">Run</span>     run_20260926T152031Z_72iukn',
+        '  <span class="lbl">Target</span>  MongoDB',
+        '  <span class="lbl">Steps</span>   32',
+        '',
+        '<span class="lbl">Warnings</span>',
+        '  <span class="w">⚠</span> Plan warning',
+        '     <span class="d">Field \'address.location\' geometry becomes GeoJSON; values outside longitude/latitude range move to \'location_raw\' as raw bytes.</span>',
+        '  <span class="w">⚠</span> Plan warning',
+        '     <span class="d">Field \'film.rental_rate\' decimal values may lose precision as float.</span>',
+        '  <span class="w">⚠</span> Plan warning',
+        '     <span class="d">Piper does not migrate views. Skipped: actor_info, customer_list, …</span>',
+        '  <span class="w">⚠</span> Plan warning',
+        '     <span class="d">Piper does not migrate triggers. Skipped: ins_film on film, …</span>',
+        '  <span class="w">⚠</span> Plan warning',
+        '     <span class="d">Piper does not recreate ON UPDATE CURRENT_TIMESTAMP on MongoDB. Columns: actor.last_update, …</span>',
+        '',
+        '<span class="lbl">Result</span>',
+        '',
+        '  <span class="w">⚠</span> Created migration plan with 32 steps. 8 warning(s).',
+        '',
+        '<span class="lbl">Next</span>',
+        '  <span class="i">piper execute</span>'
+      ]
+    },
+    {
+      id:'execute',
+      title:'piper execute',
+      meta:'mysql → mongodb · sample run',
+      foot:['writes target','interrupt → piper resume'],
+      cmd:'piper execute --yes',
+      lines:[
+        '<span class="ttl">Piper migration</span>',
+        '',
+        '  <span class="d">Keep source data unchanged until migration completes.</span>',
+        '',
+        '  <span class="o">✓</span> Schema',
+        '  <span class="i">•</span> Data',
+        '      actor             <span class="d">200 rows</span>',
+        '      film              <span class="d">1000 rows</span>',
+        '@@progress-bar',
+        '@@finish-data',
+        '  <span class="o">✓</span> Relationships',
+        '  <span class="o">✓</span> Deferred relationships',
+        '',
+        '  <span class="o">✓</span> Migration completed.',
+        '',
+        '  <span class="d">16 entities · 47273 rows · 32 operations · 1.5s</span>',
+        '',
+        '<span class="lbl">Next</span>',
+        '  <span class="i">piper validate</span>'
+      ]
+    }
+  ];
+
+  var timers=[];
+  var raf=0;
+  var BAR_TABLE='rental';
+  var reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var cmdEl=null;
+  var outEl=null;
+  var curEl=null;
+
+  function clearTimers(){
+    timers.forEach(function(id){clearTimeout(id);});
+    timers=[];
+    if(raf){cancelAnimationFrame(raf);raf=0;}
+  }
+  function later(ms,fn){
+    var id=setTimeout(fn,ms);
+    timers.push(id);
+    return id;
+  }
+  function setChrome(stage,index){
+    runTitle.textContent=stage.title;
+    runMeta.textContent=stage.meta;
+    runFootL.textContent=stage.foot[0];
+    runFootR.textContent=stage.foot[1];
+    if(!runStages){return;}
+    [].slice.call(runStages.children).forEach(function(el,i){
+      el.removeAttribute('aria-current');
+      el.classList.toggle('is-done',i<index);
+      if(i===index){el.setAttribute('aria-current','step');}
+    });
+  }
+  function barGlyph(filled){
+    var n=Math.max(0,Math.min(BAR_WIDTH,filled|0));
+    return '['+'█'.repeat(n)+'░'.repeat(BAR_WIDTH-n)+']';
+  }
+  function resetShell(){
+    runBody.textContent='';
+    var prompt=document.createElement('span');
+    prompt.className='d';
+    prompt.textContent='$ ';
+    cmdEl=document.createElement('span');
+    cmdEl.className='run-cmd';
+    outEl=document.createElement('span');
+    outEl.className='run-out';
+    curEl=document.createElement('span');
+    curEl.className='cur';
+    curEl.setAttribute('aria-hidden','true');
+    runBody.appendChild(prompt);
+    runBody.appendChild(cmdEl);
+    runBody.appendChild(outEl);
+    runBody.appendChild(curEl);
+  }
+  function appendHtml(html){
+    var wrap=document.createElement('span');
+    wrap.innerHTML='\n'+html;
+    while(wrap.firstChild){outEl.appendChild(wrap.firstChild);}
+    runBody.scrollTop=runBody.scrollHeight;
+  }
+  function typeCommand(cmd,done){
+    var i=0;
+    cmdEl.textContent='';
+    function tick(){
+      i+=1;
+      cmdEl.textContent=cmd.slice(0,i);
+      if(i<cmd.length){later(28,tick);}
+      else{later(260,done);}
+    }
+    later(120,tick);
+  }
+  function animateBar(done){
+    var row=document.createElement('span');
+    row.setAttribute('data-run-progress','1');
+    row.innerHTML='\n      '+BAR_TABLE+'            <span class="run-bar"></span>  <span class="run-bar-meta"></span>';
+    outEl.appendChild(row);
+    var bar=row.querySelector('.run-bar');
+    var meta=row.querySelector('.run-bar-meta');
+    var started=performance.now();
+    var duration=2600;
+    function frame(now){
+      var t=Math.min(1,(now-started)/duration);
+      var eased=1-Math.pow(1-t,2.2);
+      var filled=Math.round(eased*BAR_WIDTH);
+      var batches=Math.max(1,Math.round(eased*BAR_TOTAL));
+      bar.textContent=barGlyph(filled);
+      meta.textContent=batches+'/'+BAR_TOTAL+' batches';
+      runBody.scrollTop=runBody.scrollHeight;
+      if(t<1){raf=requestAnimationFrame(frame);}
+      else{raf=0;later(320,done);}
+    }
+    bar.textContent=barGlyph(0);
+    meta.textContent='0/'+BAR_TOTAL+' batches';
+    raf=requestAnimationFrame(frame);
+  }
+  function finishDataBlock(){
+    var live=outEl.querySelector('[data-run-progress]');
+    if(live){
+      live.innerHTML='\n      rental            <span class="d">16044 rows</span>\n      store             <span class="d">2 rows</span>';
+      live.removeAttribute('data-run-progress');
+    }
+    var mark=outEl.querySelector('.i');
+    if(mark&&mark.textContent==='•'){
+      mark.className='o';
+      mark.textContent='✓';
+    }
+  }
+  function revealLines(stage,done){
+    var lines=stage.lines;
+    var i=0;
+    function next(){
+      if(i>=lines.length){
+        later(1600,done);
+        return;
+      }
+      var line=lines[i];
+      i+=1;
+      if(line==='@@progress-bar'){
+        animateBar(next);
+        return;
+      }
+      if(line==='@@finish-data'){
+        finishDataBlock();
+        later(420,next);
+        return;
+      }
+      appendHtml(line);
+      var delay=/⚠|✓|Result|Next|Piper |•/.test(line)?240:(line===''?40:70);
+      later(delay,next);
+    }
+    later(180,next);
+  }
+  function playStage(index){
+    var stage=stages[index];
+    runRoot.classList.add('is-switching');
+    later(280,function(){
+      setChrome(stage,index);
+      resetShell();
+      runRoot.classList.remove('is-switching');
+      typeCommand(stage.cmd,function(){
+        revealLines(stage,function(){
+          var next=index+1;
+          if(next<stages.length){later(1100,function(){playStage(next);});}
+          else{later(2800,function(){playStage(0);});}
+        });
+      });
+    });
+  }
+  function start(){
+    clearTimers();
+    runRoot.classList.remove('is-switching');
+    if(reduced){
+      setChrome(stages[2],2);
+      resetShell();
+      cmdEl.textContent=stages[2].cmd;
+      stages[2].lines.forEach(function(line){appendHtml(line);});
+      return;
+    }
+    playStage(0);
+  }
+
+  if('IntersectionObserver' in window){
+    var seen=false;
+    var io=new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting&&!seen){seen=true;start();io.disconnect();}
+      });
+    },{threshold:0.2});
+    io.observe(runRoot);
+  }else{start();}
 })();
 </script>
 
