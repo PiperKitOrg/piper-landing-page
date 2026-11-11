@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en" data-docs-page="what-changes">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>What changes (and what doesn't) · Piper Docs</title>
+<meta name="description" content="How Piper handles schema differences, type conversions, foreign keys, and safety limits.">
+<link rel="icon" href="../favicon.png" type="image/png" sizes="48x48">
+<link rel="icon" href="../favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="assets/docs.css">
+</head>
+<body>
+<div class="band-deep">
+  <div class="wrap">
+    <header class="docs-top">
+      <a class="mark" href="../index.html" aria-label="Piper home">
+        <img src="../logo.png" alt="" width="118" height="36" decoding="async">
+      </a>
+      <nav class="docs-nav" aria-label="Primary">
+        <a class="hide-sm" href="../index.html">Home</a>
+        <a href="index.html" aria-current="page">Docs</a>
+        <div class="docs-search-wrap">
+          <label class="visually-hidden" for="docs-search" style="position:absolute;left:-9999px">Search docs</label>
+          <input id="docs-search" class="docs-search" type="search" placeholder="Search docs" autocomplete="off">
+          <div id="docs-search-results" class="docs-search-results" hidden></div>
+        </div>
+        <a class="btn" href="../index.html#get">Get the binary</a>
+      </nav>
+    </header>
+  </div>
+</div>
+
+<div id="docs-backdrop" class="docs-backdrop" hidden></div>
+
+<div class="wrap">
+  <div class="docs-menu-bar">
+    <button type="button" class="docs-menu-btn" id="docs-menu-btn" aria-expanded="false" aria-controls="docs-sidebar">Menu</button>
+  </div>
+  <div class="docs-shell">
+    <aside class="docs-sidebar" id="docs-sidebar" aria-label="Documentation">
+      <nav class="docs-side-nav" id="docs-side-nav"></nav>
+    </aside>
+    <div class="docs-main">
+      <p class="docs-crumb" id="docs-crumb"></p>
+      <details class="docs-toc-mobile">
+        <summary>On this page</summary>
+        <nav id="docs-toc-mobile-nav"></nav>
+      </details>
+      <article class="docs-article">
+<h1>What changes (and what doesn't)</h1>
+<p class="docs-lede">Cross-dialect migration always rewrites something. Piper’s job is to make those rewrites visible before execute.</p>
+
+<h2>Supported, best-effort, unsupported</h2>
+<div class="docs-table-wrap">
+<table class="docs-table">
+  <thead><tr><th>Class</th><th>Meaning</th></tr></thead>
+  <tbody>
+    <tr><td>Supported</td><td>Migrated with a documented mapping (exact or transformed).</td></tr>
+    <tr><td>Best-effort / lossy</td><td>Migrated with a warned degrade. <code>--strict-mode</code> blocks these.</td></tr>
+    <tr><td>Unsupported</td><td>Skipped with a warning, or rejected. Not silently dropped when Piper can detect it.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Types that often change shape</h2>
+<ul>
+  <li>Integer widths may widen</li>
+  <li>UUID on MySQL is often emulated as <code>VARCHAR(36)</code></li>
+  <li>PostgreSQL arrays toward MySQL may become JSON or delimited text</li>
+  <li>JSON / JSONB collapse in the intermediate model; PostgreSQL targets use JSONB</li>
+  <li>Float NaN/Inf toward MySQL become NULL and are counted in <code>loss-report.json</code></li>
+  <li>Unbounded or oversized decimals toward Mongo may become float</li>
+</ul>
+
+<h2>CHECK constraints</h2>
+<p>A simple CHECK that fits Piper’s closed PostgreSQL↔MySQL grammar is preserved. Anything outside that grammar — functions, casts, LIKE, subqueries, and every CHECK aimed at MongoDB — is skipped with <code>CHECK constraints will not be migrated</code>. Strict mode blocks skips.</p>
+
+<h2>Relationships and foreign keys</h2>
+<ul>
+  <li>SQL→SQL: foreign keys are transformed; actions are preserved when safe</li>
+  <li>Toward MongoDB: values only; not enforced</li>
+  <li>Mongo→SQL guesses: blocked until <code>--confirm-relationship</code>; orphans cause a skip, not a rewrite</li>
+  <li>FK cycles: default <code>--cycle-mode strict</code> fails the plan; use <code>defer_constraints</code> or <code>manual_break</code></li>
+</ul>
+
+<h2>Objects Piper often skips</h2>
+<div class="docs-table-wrap">
+<table class="docs-table">
+  <thead><tr><th>Object</th><th>Behavior</th></tr></thead>
+  <tbody>
+    <tr><td>Routines</td><td>Always skipped with a warning</td></tr>
+    <tr><td>Triggers</td><td>Only a narrow BEFORE UPDATE touch pattern; others skipped</td></tr>
+    <tr><td>Views</td><td>Subset may translate SQL→SQL; not to Mongo</td></tr>
+    <tr><td>Roles / grants</td><td>Never migrated</td></tr>
+    <tr><td>RLS policies</td><td>Detected; not recreated</td></tr>
+    <tr><td>Expression / invisible indexes</td><td>Warned; DDL skips</td></tr>
+    <tr><td>Generated columns</td><td>Snapshot values only; expression not re-emitted</td></tr>
+    <tr><td>Other Postgres schemas</td><td>Only the connected schema is migrated</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Safety and limitations</h2>
+<ul>
+  <li>Static source required — no live sync, no snapshot-isolation claim</li>
+  <li>New runs expect empty planned target tables</li>
+  <li>Completed batches stay on resume; Piper does not undo them</li>
+  <li>DDL is not crash-atomic</li>
+  <li>Failed migrations can leave partial schema and data; Piper does not clean up for you</li>
+  <li>Credentials are never written under <code>.piper/</code></li>
+  <li>Offline plan uses assumed target capabilities; the live target may still reject DDL</li>
+</ul>
+<p>For command-level detail, see <a href="commands.html">CLI commands</a>.</p>
+
+      </article>
+      <nav class="docs-pager" id="docs-pager" aria-label="Page"></nav>
+    </div>
+    <aside class="docs-toc" aria-label="On this page">
+      <p class="docs-toc-title">On this page</p>
+      <nav id="docs-toc-nav"></nav>
+    </aside>
+  </div>
+  <footer class="docs-footer">
+    <span><a href="../index.html">Piper</a> documentation</span>
+    <span>PostgreSQL 14+ · MySQL 8.0+ · MongoDB 7.0+</span>
+  </footer>
+</div>
+<script src="assets/docs.js" defer></script>
+</body>
+</html>

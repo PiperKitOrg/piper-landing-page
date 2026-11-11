@@ -1,0 +1,34 @@
+{
+  "sections": [
+    {
+      "title": "Getting started",
+      "pages": [
+        { "id": "intro", "title": "What Piper is", "href": "index.html", "file": "index.html" },
+        { "id": "install", "title": "Install", "href": "install.html", "file": "install.html" },
+        { "id": "first-migration", "title": "Your first migration", "href": "first-migration.html", "file": "first-migration.html" },
+        { "id": "connections", "title": "Connecting databases", "href": "connections.html", "file": "connections.html" }
+      ]
+    },
+    {
+      "title": "Using Piper",
+      "pages": [
+        { "id": "workflow", "title": "Inspect, plan, and execute", "href": "workflow.html", "file": "workflow.html" },
+        { "id": "resume", "title": "Resume, status, and checking", "href": "resume-and-validate.html", "file": "resume-and-validate.html" },
+        { "id": "mongodb", "title": "MongoDB", "href": "mongodb.html", "file": "mongodb.html" }
+      ]
+    },
+    {
+      "title": "Understanding migrations",
+      "pages": [
+        { "id": "what-changes", "title": "What changes (and what doesn't)", "href": "what-changes.html", "file": "what-changes.html" }
+      ]
+    },
+    {
+      "title": "Reference",
+      "pages": [
+        { "id": "commands", "title": "CLI commands", "href": "commands.html", "file": "commands.html" },
+        { "id": "troubleshooting", "title": "Troubleshooting", "href": "troubleshooting.html", "file": "troubleshooting.html" }
+      ]
+    }
+  ]
+}

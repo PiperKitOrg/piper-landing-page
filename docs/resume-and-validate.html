@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en" data-docs-page="resume">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Resume, status, and checking · Piper Docs</title>
+<meta name="description" content="How to resume an interrupted migration and verify the result with Piper.">
+<link rel="icon" href="../favicon.png" type="image/png" sizes="48x48">
+<link rel="icon" href="../favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="assets/docs.css">
+</head>
+<body>
+<div class="band-deep">
+  <div class="wrap">
+    <header class="docs-top">
+      <a class="mark" href="../index.html" aria-label="Piper home">
+        <img src="../logo.png" alt="" width="118" height="36" decoding="async">
+      </a>
+      <nav class="docs-nav" aria-label="Primary">
+        <a class="hide-sm" href="../index.html">Home</a>
+        <a href="index.html" aria-current="page">Docs</a>
+        <div class="docs-search-wrap">
+          <label class="visually-hidden" for="docs-search" style="position:absolute;left:-9999px">Search docs</label>
+          <input id="docs-search" class="docs-search" type="search" placeholder="Search docs" autocomplete="off">
+          <div id="docs-search-results" class="docs-search-results" hidden></div>
+        </div>
+        <a class="btn" href="../index.html#get">Get the binary</a>
+      </nav>
+    </header>
+  </div>
+</div>
+
+<div id="docs-backdrop" class="docs-backdrop" hidden></div>
+
+<div class="wrap">
+  <div class="docs-menu-bar">
+    <button type="button" class="docs-menu-btn" id="docs-menu-btn" aria-expanded="false" aria-controls="docs-sidebar">Menu</button>
+  </div>
+  <div class="docs-shell">
+    <aside class="docs-sidebar" id="docs-sidebar" aria-label="Documentation">
+      <nav class="docs-side-nav" id="docs-side-nav"></nav>
+    </aside>
+    <div class="docs-main">
+      <p class="docs-crumb" id="docs-crumb"></p>
+      <details class="docs-toc-mobile">
+        <summary>On this page</summary>
+        <nav id="docs-toc-mobile-nav"></nav>
+      </details>
+      <article class="docs-article">
+<h1>Resume, status, and checking</h1>
+<p class="docs-lede">Migrations get interrupted. Piper keeps progress locally so you can continue, inspect status, and validate independently.</p>
+
+<h2>Resume</h2>
+<div class="docs-code">
+  <div class="docs-code-bar"><span>command</span><button type="button" data-copy="piper resume">Copy</button></div>
+  <pre><code>piper resume</code></pre>
+</div>
+<p>Resume continues a paused or failed run from the last completed batch. Finished tables stay on the target — they are not rolled back.</p>
+<ul>
+  <li>There is no <code>piper pause</code> command</li>
+  <li>If the process stops, the run may still look <code>running</code>; the next resume reclaims it under <code>piper.lock</code></li>
+  <li>Cancellation via <code>--timeout</code> is recorded as paused</li>
+  <li>Resume is safe to retry under the default upsert <code>merge</code></li>
+  <li>With <code>--upsert fail</code>, a crash after apply and before checkpoint can surface duplicates</li>
+</ul>
+<div class="docs-warn">
+  <p><strong>Source must stay still</strong></p>
+  <p>Resume assumes source data has not changed since the original run. Piper does not follow ongoing writes.</p>
+</div>
+
+<h2>Incomplete run vs a new inspect</h2>
+<p>Each <code>piper inspect</code> creates a new run id. If an incomplete run already exists for the same endpoints and plan fingerprint, plan warns and execute refuses a new copy unless you pass:</p>
+<ul>
+  <li><code>--recovery resume</code> or <code>--resume-run &lt;id&gt;</code> — continue the original run</li>
+  <li><code>--recovery fresh</code> — empty target, new run</li>
+  <li><code>--recovery continue</code> / <code>--allow-existing-target</code> — new run with no inherited checkpoints</li>
+</ul>
+<p><code>--yes</code> does not pick a recovery mode for you.</p>
+
+<h2>Status and runs</h2>
+<div class="docs-code">
+  <div class="docs-code-bar"><span>command</span><button type="button" data-copy="piper status
+piper runs">Copy</button></div>
+  <pre><code>piper status
+piper runs</code></pre>
+</div>
+<p><code>status</code> shows the current state, progress, and latest validation for a run. <code>runs</code> lists runs stored in this project’s <code>.piper</code> directory.</p>
+
+<h2>Validate</h2>
+<div class="docs-code">
+  <div class="docs-code-bar"><span>command</span><button type="button" data-copy="piper validate">Copy</button></div>
+  <pre><code>piper validate</code></pre>
+</div>
+<p>Validate independently assesses the outcome. It does not treat execute success as proof.</p>
+<p>Default checks:</p>
+<ul>
+  <li>Row-count parity for migrated entities</li>
+  <li>Orphans for foreign keys the plan intended to create</li>
+  <li>Recorded non-finite float coercions from <code>loss-report.json</code></li>
+  <li>Warnings for JSON-as-text and precision-loss strategies</li>
+</ul>
+<p>Validate does not repair rows, recreate skipped objects, or prove every semantic difference. Exit <strong>5</strong> means a check failed.</p>
+
+<h2>Doctor and explain</h2>
+<div class="docs-code">
+  <div class="docs-code-bar"><span>command</span><button type="button" data-copy="piper doctor
+piper explain">Copy</button></div>
+  <pre><code>piper doctor
+piper explain</code></pre>
+</div>
+<p><code>doctor</code> is a preflight report (connectivity, versions, optional ledger integrity). A green doctor is not proof the target matches — use validate.</p>
+<p><code>explain</code> shows the latest recorded failure for a run and suggests what to try next.</p>
+
+      </article>
+      <nav class="docs-pager" id="docs-pager" aria-label="Page"></nav>
+    </div>
+    <aside class="docs-toc" aria-label="On this page">
+      <p class="docs-toc-title">On this page</p>
+      <nav id="docs-toc-nav"></nav>
+    </aside>
+  </div>
+  <footer class="docs-footer">
+    <span><a href="../index.html">Piper</a> documentation</span>
+    <span>PostgreSQL 14+ · MySQL 8.0+ · MongoDB 7.0+</span>
+  </footer>
+</div>
+<script src="assets/docs.js" defer></script>
+</body>
+</html>

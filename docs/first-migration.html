@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en" data-docs-page="first-migration">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Your first migration · Piper Docs</title>
+<meta name="description" content="Walk through a PostgreSQL to MySQL migration with Piper from install to validate.">
+<link rel="icon" href="../favicon.png" type="image/png" sizes="48x48">
+<link rel="icon" href="../favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="assets/docs.css">
+</head>
+<body>
+<div class="band-deep">
+  <div class="wrap">
+    <header class="docs-top">
+      <a class="mark" href="../index.html" aria-label="Piper home">
+        <img src="../logo.png" alt="" width="118" height="36" decoding="async">
+      </a>
+      <nav class="docs-nav" aria-label="Primary">
+        <a class="hide-sm" href="../index.html">Home</a>
+        <a href="index.html" aria-current="page">Docs</a>
+        <div class="docs-search-wrap">
+          <label class="visually-hidden" for="docs-search" style="position:absolute;left:-9999px">Search docs</label>
+          <input id="docs-search" class="docs-search" type="search" placeholder="Search docs" autocomplete="off">
+          <div id="docs-search-results" class="docs-search-results" hidden></div>
+        </div>
+        <a class="btn" href="../index.html#get">Get the binary</a>
+      </nav>
+    </header>
+  </div>
+</div>
+
+<div id="docs-backdrop" class="docs-backdrop" hidden></div>
+
+<div class="wrap">
+  <div class="docs-menu-bar">
+    <button type="button" class="docs-menu-btn" id="docs-menu-btn" aria-expanded="false" aria-controls="docs-sidebar">Menu</button>
+  </div>
+  <div class="docs-shell">
+    <aside class="docs-sidebar" id="docs-sidebar" aria-label="Documentation">
+      <nav class="docs-side-nav" id="docs-side-nav"></nav>
+    </aside>
+    <div class="docs-main">
+      <p class="docs-crumb" id="docs-crumb"></p>
+      <details class="docs-toc-mobile">
+        <summary>On this page</summary>
+        <nav id="docs-toc-mobile-nav"></nav>
+      </details>
+      <article class="docs-article">
+<h1>Your first migration</h1>
+<p class="docs-lede">This guide walks one supported path end to end: PostgreSQL to MySQL. The goal is a first successful migration with as few decisions as possible.</p>
+
+<div class="docs-warn">
+  <p><strong>Before you start</strong></p>
+  <p>Use an empty MySQL database as the target. Keep the PostgreSQL source still while Piper runs — Piper does not take a consistent database snapshot and does not follow later writes.</p>
+</div>
+
+<h2>What you need</h2>
+<ul>
+  <li>The Piper binary (see <a href="install.html">Install</a>)</li>
+  <li>PostgreSQL 14+ with a small sample schema</li>
+  <li>An empty MySQL 8.0+ database</li>
+  <li>Network access from your machine to both databases</li>
+</ul>
+
+<h2>1. Create a project folder</h2>
+<p>Piper stores artifacts in <code>.piper/</code> in the current directory (unless you set <code>--project-root</code>).</p>
+<div class="docs-code">
+  <div class="docs-code-bar"><span>command</span><button type="button" data-copy="mkdir my-migration &amp;&amp; cd my-migration
+# put or symlink the piper binary here">Copy</button></div>
+  <pre><code>mkdir my-migration &amp;&amp; cd my-migration
+# put or symlink the piper binary here</code></pre>
+</div>
+
+<h2>2. Prepare a small PostgreSQL source</h2>
+<p>If you already have tables, skip this and use them. Otherwise create something simple:</p>
+<div class="docs-code">
+  <div class="docs-code-bar"><span>optional setup</span><button type="button" data-copy="psql &quot;$PIPER_SOURCE_URL&quot; &lt;&lt;&#x27;SQL&#x27;
+CREATE TABLE customers (
+  id BIGSERIAL PRIMARY KEY,
+  email TEXT NOT NULL UNIQUE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE TABLE orders (
+  id BIGSERIAL PRIMARY KEY,
+  customer_id BIGINT NOT NULL REFERENCES customers(id),
+  total_cents INTEGER NOT NULL CHECK (total_cents &gt;= 0)
+);
+INSERT INTO customers (email) VALUES (&#x27;ada@example.com&#x27;);
+INSERT INTO orders (customer_id, total_cents) VALUES (1, 2500);
+SQL">Copy</button></div>
+  <pre><code>psql &quot;$PIPER_SOURCE_URL&quot; &lt;&lt;&#x27;SQL&#x27;
+CREATE TABLE customers (
+  id BIGSERIAL PRIMARY KEY,
+  email TEXT NOT NULL UNIQUE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE TABLE orders (
+  id BIGSERIAL PRIMARY KEY,
+  customer_id BIGINT NOT NULL REFERENCES customers(id),
+  total_cents INTEGER NOT NULL CHECK (total_cents &gt;= 0)
+);
+INSERT INTO customers (email) VALUES (&#x27;ada@example.com&#x27;);
+INSERT INTO orders (customer_id, total_cents) VALUES (1, 2500);
+SQL</code></pre>
+</div>
+
+<h2>3. Point Piper at both databases</h2>
+<p>Prefer environment variables. Put passwords in <code>PIPER_SOURCE_PASSWORD</code> / <code>PIPER_TARGET_PASSWORD</code>, or let Piper prompt.</p>
+<div class="docs-code">
+  <div class="docs-code-bar"><span>command</span><button type="button" data-copy="export PIPER_SOURCE_URL=&#x27;postgres://user@127.0.0.1:5432/appdb?sslmode=disable&#x27;
+export PIPER_TARGET_URL=&#x27;mysql://user@127.0.0.1:3306/appdb&#x27;
+# export PIPER_SOURCE_PASSWORD=&#x27;…&#x27;
+# export PIPER_TARGET_PASSWORD=&#x27;…&#x27;">Copy</button></div>
+  <pre><code>export PIPER_SOURCE_URL=&#x27;postgres://user@127.0.0.1:5432/appdb?sslmode=disable&#x27;
+export PIPER_TARGET_URL=&#x27;mysql://user@127.0.0.1:3306/appdb&#x27;
+# export PIPER_SOURCE_PASSWORD=&#x27;…&#x27;
+# export PIPER_TARGET_PASSWORD=&#x27;…&#x27;</code></pre>
+</div>
+<p>More options: <a href="connections.html">Connecting databases</a>.</p>
+
+<h2>4. Optional preflight</h2>
+<div class="docs-code">
+  <div class="docs-code-bar"><span>command</span><button type="button" data-copy="./piper doctor">Copy</button></div>
+  <pre><code>./piper doctor</code></pre>
+</div>
+<p><code>doctor</code> checks connectivity, versions, and safety notes. Warnings here do not block you — they tell you what to read next.</p>
+
+<h2>5. Inspect the source</h2>
+<div class="docs-code">
+  <div class="docs-code-bar"><span>command</span><button type="button" data-copy="./piper inspect">Copy</button></div>
+  <pre><code>./piper inspect</code></pre>
+</div>
+<div class="docs-out">
+  <div class="docs-out-bar">Illustrative output</div>
+  <pre>$ piper inspect
+Inspected PostgreSQL · 2 entities
+Run  run_01J…
+Next  piper plan --target &lt;dialect&gt;</pre>
+</div>
+<p>Piper connects to the source, reads tables and relationships, and writes a schema snapshot to <code>.piper/runs/&lt;run-id&gt;/ir.json</code>. Nothing is written to MySQL yet.</p>
+
+<h2>6. Plan for MySQL</h2>
+<div class="docs-code">
+  <div class="docs-code-bar"><span>command</span><button type="button" data-copy="./piper plan --target mysql">Copy</button></div>
+  <pre><code>./piper plan --target mysql</code></pre>
+</div>
+<div class="docs-warn">
+  <p><strong>Important</strong></p>
+  <p><code>--target</code> defaults to <code>postgres</code>. For a PostgreSQL source you must pass <code>--target mysql</code> (or <code>mongo</code>). Same-dialect plans are rejected.</p>
+</div>
+<p>Read the warnings. Piper lists skips, type changes, and anything it will not recreate. The same findings are in the plan JSON if you want to gate on them later with <code>--output json</code>.</p>
+<p>Plan does not need a live target connection. It works from the saved inspect snapshot.</p>
+
+<h2>7. Execute</h2>
+<div class="docs-code">
+  <div class="docs-code-bar"><span>command</span><button type="button" data-copy="./piper execute">Copy</button></div>
+  <pre><code>./piper execute</code></pre>
+</div>
+<p>Piper creates schema on the target, copies rows in batches, then applies relationships. Progress shows tables and row counts. On a lossy plan, Piper may ask you to confirm; pass <code>--yes</code> to skip prompts.</p>
+<div class="docs-out">
+  <div class="docs-out-bar">Illustrative output — real completion copy</div>
+  <pre>$ piper execute
+Migration completed.
+Next  piper validate</pre>
+</div>
+
+<div class="docs-warn">
+  <p><strong>If the target already has data</strong></p>
+  <p>A new run expects the planned tables to be empty. Existing rows stop execute until you pass <code>--recovery continue</code> or <code>--allow-existing-target</code>. Those start over with no inherited checkpoints. Prefer an empty database for a first run.</p>
+</div>
+
+<h2>8. Validate</h2>
+<div class="docs-code">
+  <div class="docs-code-bar"><span>command</span><button type="button" data-copy="./piper validate">Copy</button></div>
+  <pre><code>./piper validate</code></pre>
+</div>
+<p>Validate re-checks row counts, planned foreign keys, and a few fallback cases. It does not trust the green execute checklist alone. Exit code <strong>5</strong> means a check failed.</p>
+
+<h2>If something stops halfway</h2>
+<ol>
+  <li><code>./piper explain</code> — latest failure and a suggested next step</li>
+  <li><code>./piper resume</code> — continue from the last completed batch (finished tables stay; they are not undone)</li>
+  <li><code>./piper status</code> — current run state</li>
+</ol>
+<p>There is no <code>piper pause</code> command. If the process stops, resume continues from the last completed batch under the project lock.</p>
+
+<h2>What you should have now</h2>
+<ul>
+  <li>Tables and rows on MySQL</li>
+  <li>Artifacts under <code>.piper/runs/&lt;run-id&gt;/</code></li>
+  <li>A validation report you can re-run any time</li>
+</ul>
+<p>Go deeper: <a href="workflow.html">Inspect, plan, and execute</a> · <a href="what-changes.html">What changes</a> · <a href="commands.html">CLI commands</a></p>
+
+      </article>
+      <nav class="docs-pager" id="docs-pager" aria-label="Page"></nav>
+    </div>
+    <aside class="docs-toc" aria-label="On this page">
+      <p class="docs-toc-title">On this page</p>
+      <nav id="docs-toc-nav"></nav>
+    </aside>
+  </div>
+  <footer class="docs-footer">
+    <span><a href="../index.html">Piper</a> documentation</span>
+    <span>PostgreSQL 14+ · MySQL 8.0+ · MongoDB 7.0+</span>
+  </footer>
+</div>
+<script src="assets/docs.js" defer></script>
+</body>
+</html>

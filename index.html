@@ -96,6 +96,7 @@ h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
 .nav a{text-decoration:none;color:var(--muted);transition:var(--ease)}
 .nav a:hover{color:var(--fg)}
 @media (max-width:760px){.nav .l{display:none}}
+/* Docs stays visible on small screens; section anchors hide via .l */
 
 /* buttons */
 .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 18px;border:1px solid var(--fg);border-radius:4px;font:600 .95rem var(--body);text-decoration:none;color:var(--fg);background:transparent;cursor:pointer;transition:var(--ease)}
@@ -312,6 +313,7 @@ footer a:hover{color:var(--fg);text-decoration-color:var(--fg)}
     <a class="l" href="#honesty">Warnings</a>
     <a class="l" href="#matrix">Matrix</a>
     <a class="l" href="#limits">Limits</a>
+    <a href="docs/index.html">Docs</a>
     <a class="btn p" href="#get">Get the binary</a>
   </nav>
 </header>
@@ -369,7 +371,7 @@ footer a:hover{color:var(--fg);text-decoration-color:var(--fg)}
       </button>
       <button class="tab" role="tab" id="t-execute" aria-controls="p-execute" aria-selected="false" tabindex="-1">
         <span class="n">3</span><span class="cmd">piper execute</span>
-        <span class="ds">Creates structure and copies data. Interrupt it; <code>resume</code> picks up where it stopped.</span>
+        <span class="ds">Creates structure and copies data. If the process stops, <code>resume</code> continues from the last completed batch.</span>
         <span class="tc">writes target</span>
       </button>
       <button class="tab" role="tab" id="t-validate" aria-controls="p-validate" aria-selected="false" tabindex="-1">
@@ -466,7 +468,7 @@ footer a:hover{color:var(--fg);text-decoration-color:var(--fg)}
   <div class="loop">
     <div>
       <h3>Resumable by design</h3>
-      <p>Long copies get interrupted. Piper keeps progress in <code>.piper/</code>, so <code>resume</code> continues instead of starting the target over.</p>
+      <p>Long copies get interrupted. Piper keeps progress in <code>.piper/</code>, so <code>resume</code> continues from the last completed batch and does not undo finished tables.</p>
     </div>
     <div>
       <h3>Validate does not trust execute</h3>
@@ -507,7 +509,7 @@ footer a:hover{color:var(--fg);text-decoration-color:var(--fg)}
       dept_emp       <span class="d">331603 rows</span>
       dept_manager   <span class="d">24 rows</span>
       salaries       <span class="d">[███░░░░░░░░░░░░░░░░░]</span>  <span class="d">452/2845 batches</span></pre>
-      <div class="term-foot"><span>writes target</span><span>interrupt → piper resume</span></div>
+      <div class="term-foot"><span>writes target</span><span>stop → piper resume (last completed batch)</span></div>
     </figure>
   </div>
 </section>
@@ -743,7 +745,7 @@ footer a:hover{color:var(--fg);text-decoration-color:var(--fg)}
         <li><div><b>Full routine and trigger translation</b><span>They are named and skipped, not rewritten.</span></div></li>
         <li><div><b>PostGIS as a support claim</b><span>Spatial data is not a promised mapping.</span></div></li>
         <li><div><b>Omniscient drift detection</b><span>Unmodeled semantic changes can still exist outside the warning and validate surfaces.</span></div></li>
-        <li><div><b>Live sync and CDC</b><span>Piper moves a snapshot. It does not follow changes.</span></div></li>
+        <li><div><b>Live sync and CDC</b><span>Piper reads the source as it goes, does not take a consistent database snapshot, and does not follow later writes.</span></div></li>
         <li><div><b>Multi-schema in one run</b><span>One schema per run.</span></div></li>
         <li><div><b>Roles and grants</b><span>Access control is not migrated.</span></div></li>
       </ul>
@@ -760,60 +762,61 @@ footer a:hover{color:var(--fg);text-decoration-color:var(--fg)}
     <div>
       <p class="eyebrow">Get started</p>
       <h2>Run doctor, then read your first plan.</h2>
-      <p class="intro">Piper is one local binary per platform — macOS, Linux, and Windows, on amd64 and arm64. Download the binary alone, or a starter zip that already has it at the folder root.</p>
+      <p class="intro">Piper is one local binary per platform — macOS, Linux, and Windows, on amd64 and arm64. Download the binary alone, or clone the playground branch for your OS (binary + sample datasets included).</p>
 
       <div class="plats" id="download">
         <table>
           <thead>
-            <tr><th scope="col">Platform</th><th scope="col">Binary</th><th scope="col">Starter zip</th></tr>
+            <tr><th scope="col">Platform</th><th scope="col">Binary</th><th scope="col">Playground</th></tr>
           </thead>
           <tbody>
             <tr>
               <td><span class="os">macOS</span><br><span class="meta">Apple Silicon · arm64</span></td>
               <td><a href="downloads/piper-darwin-arm64" download>piper-darwin-arm64</a></td>
-              <td><a href="starter/piper-starter-darwin-arm64.zip" download>starter zip</a></td>
+              <td><a href="https://github.com/PiperKitOrg/piper-examples/tree/darwin-arm64">darwin-arm64</a></td>
             </tr>
             <tr>
               <td><span class="os">macOS</span><br><span class="meta">Intel · amd64</span></td>
               <td><a href="downloads/piper-darwin-amd64" download>piper-darwin-amd64</a></td>
-              <td><a href="starter/piper-starter-darwin-amd64.zip" download>starter zip</a></td>
+              <td><a href="https://github.com/PiperKitOrg/piper-examples/tree/darwin-amd64">darwin-amd64</a></td>
             </tr>
             <tr>
               <td><span class="os">Linux</span><br><span class="meta">x86_64 · amd64</span></td>
               <td><a href="downloads/piper-linux-amd64" download>piper-linux-amd64</a></td>
-              <td><a href="starter/piper-starter-linux-amd64.zip" download>starter zip</a></td>
+              <td><a href="https://github.com/PiperKitOrg/piper-examples/tree/linux-amd64">linux-amd64</a></td>
             </tr>
             <tr>
               <td><span class="os">Linux</span><br><span class="meta">ARM64</span></td>
               <td><a href="downloads/piper-linux-arm64" download>piper-linux-arm64</a></td>
-              <td><a href="starter/piper-starter-linux-arm64.zip" download>starter zip</a></td>
+              <td><a href="https://github.com/PiperKitOrg/piper-examples/tree/linux-arm64">linux-arm64</a></td>
             </tr>
             <tr>
               <td><span class="os">Windows</span><br><span class="meta">x86_64 · amd64</span></td>
               <td><a href="downloads/piper-windows-amd64.exe" download>piper-windows-amd64.exe</a></td>
-              <td><a href="starter/piper-starter-windows-amd64.zip" download>starter zip</a></td>
+              <td><a href="https://github.com/PiperKitOrg/piper-examples/tree/windows-amd64">windows-amd64</a></td>
             </tr>
             <tr>
               <td><span class="os">Windows</span><br><span class="meta">ARM64</span></td>
               <td><a href="downloads/piper-windows-arm64.exe" download>piper-windows-arm64.exe</a></td>
-              <td><a href="starter/piper-starter-windows-arm64.zip" download>starter zip</a></td>
+              <td><a href="https://github.com/PiperKitOrg/piper-examples/tree/windows-arm64">windows-arm64</a></td>
             </tr>
           </tbody>
         </table>
       </div>
 
       <p class="note-local"><strong>No global install required.</strong> Piper runs from whatever directory you put it in — <code>./piper doctor</code> (or <code>.\piper.exe doctor</code> on Windows) is enough. Putting it on your PATH is optional.</p>
-      <p class="small">Checksums: <a href="downloads/SHA256SUMS">downloads/SHA256SUMS</a>. Same six targets as the GoReleaser matrix.</p>
+      <p class="small">Checksums: <a href="downloads/SHA256SUMS">downloads/SHA256SUMS</a>. Same six targets as the GoReleaser matrix. Playground: <a href="https://github.com/PiperKitOrg/piper-examples">PiperKitOrg/piper-examples</a>.</p>
     </div>
 
     <ol class="steps">
-      <li><span class="n">1</span><div><p><strong>Unzip the starter</strong> (or drop the binary in any folder) and <code>cd</code> into that directory.</p></div></li>
-      <li><span class="n">2</span><div><p><strong>Point it at your databases</strong> with env URLs (<code>env.example</code> in the zip), then run the optional preflight.</p>
-        <div class="cmdline"><code>./piper doctor</code><button type="button" data-copy="./piper doctor">Copy</button></div></div></li>
+      <li><span class="n">1</span><div><p><strong>Clone your platform branch</strong> from <a href="https://github.com/PiperKitOrg/piper-examples">piper-examples</a> (binary lands in <code>bin/</code>; datasets via submodules).</p>
+        <div class="cmdline"><code>git clone --recurse-submodules -b darwin-arm64 https://github.com/PiperKitOrg/piper-examples.git</code><button type="button" data-copy="git clone --recurse-submodules -b darwin-arm64 https://github.com/PiperKitOrg/piper-examples.git">Copy</button></div></div></li>
+      <li><span class="n">2</span><div><p><strong>Start the local databases</strong> and follow the repo <code>README.md</code>.</p>
+        <div class="cmdline"><code>docker compose up -d</code><button type="button" data-copy="docker compose up -d">Copy</button></div></div></li>
       <li><span class="n">3</span><div><p><strong>Inspect, then read the plan.</strong> Nothing is written to the target yet. Pick a cross-dialect target.</p>
-        <div class="cmdline"><code>./piper inspect &amp;&amp; ./piper plan --target mongo</code><button type="button" data-copy="./piper inspect && ./piper plan --target mongo">Copy</button></div></div></li>
+        <div class="cmdline"><code>bin/piper inspect &amp;&amp; bin/piper plan --target postgres</code><button type="button" data-copy="bin/piper inspect && bin/piper plan --target postgres">Copy</button></div></div></li>
       <li><span class="n">4</span><div><p><strong>Execute when the warnings are acceptable,</strong> then validate.</p>
-        <div class="cmdline"><code>./piper execute &amp;&amp; ./piper validate</code><button type="button" data-copy="./piper execute && ./piper validate">Copy</button></div></div></li>
+        <div class="cmdline"><code>bin/piper execute --yes &amp;&amp; bin/piper validate</code><button type="button" data-copy="bin/piper execute --yes && bin/piper validate">Copy</button></div></div></li>
     </ol>
   </div>
 </section>
@@ -844,7 +847,7 @@ footer a:hover{color:var(--fg);text-decoration-color:var(--fg)}
 <div class="band band-deep">
 <div class="wrap">
 <footer>
-  <span>piper · inspect, plan, execute, validate · made by <a href="https://a-thedeveloper.vercel.app" rel="noopener noreferrer">Adam</a></span>
+  <span>piper · inspect, plan, execute, validate · <a href="docs/index.html">docs</a> · made by <a href="https://a-thedeveloper.vercel.app" rel="noopener noreferrer">Adam</a></span>
   <span class="mono">PostgreSQL 14+ · MySQL 8.0+ · MongoDB 7.0+</span>
 </footer>
 </div>
@@ -996,7 +999,7 @@ footer a:hover{color:var(--fg);text-decoration-color:var(--fg)}
       id:'execute',
       title:'piper execute',
       meta:'mysql → mongodb · sample run',
-      foot:['writes target','interrupt → piper resume'],
+      foot:['writes target','stop → piper resume (last completed batch)'],
       cmd:'piper execute --yes',
       lines:[
         '<span class="ttl">Piper migration</span>',

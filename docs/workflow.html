@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en" data-docs-page="workflow">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Inspect, plan, and execute · Piper Docs</title>
+<meta name="description" content="How Piper's inspect, plan, and execute steps work, and what they write.">
+<link rel="icon" href="../favicon.png" type="image/png" sizes="48x48">
+<link rel="icon" href="../favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="assets/docs.css">
+</head>
+<body>
+<div class="band-deep">
+  <div class="wrap">
+    <header class="docs-top">
+      <a class="mark" href="../index.html" aria-label="Piper home">
+        <img src="../logo.png" alt="" width="118" height="36" decoding="async">
+      </a>
+      <nav class="docs-nav" aria-label="Primary">
+        <a class="hide-sm" href="../index.html">Home</a>
+        <a href="index.html" aria-current="page">Docs</a>
+        <div class="docs-search-wrap">
+          <label class="visually-hidden" for="docs-search" style="position:absolute;left:-9999px">Search docs</label>
+          <input id="docs-search" class="docs-search" type="search" placeholder="Search docs" autocomplete="off">
+          <div id="docs-search-results" class="docs-search-results" hidden></div>
+        </div>
+        <a class="btn" href="../index.html#get">Get the binary</a>
+      </nav>
+    </header>
+  </div>
+</div>
+
+<div id="docs-backdrop" class="docs-backdrop" hidden></div>
+
+<div class="wrap">
+  <div class="docs-menu-bar">
+    <button type="button" class="docs-menu-btn" id="docs-menu-btn" aria-expanded="false" aria-controls="docs-sidebar">Menu</button>
+  </div>
+  <div class="docs-shell">
+    <aside class="docs-sidebar" id="docs-sidebar" aria-label="Documentation">
+      <nav class="docs-side-nav" id="docs-side-nav"></nav>
+    </aside>
+    <div class="docs-main">
+      <p class="docs-crumb" id="docs-crumb"></p>
+      <details class="docs-toc-mobile">
+        <summary>On this page</summary>
+        <nav id="docs-toc-mobile-nav"></nav>
+      </details>
+      <article class="docs-article">
+<h1>Inspect, plan, and execute</h1>
+<p class="docs-lede">These three commands are the core workflow. Validate comes after; resume re-enters execute.</p>
+
+<h2>Inspect</h2>
+<p>Before migrating anything, Piper needs to understand your database.</p>
+<div class="docs-code">
+  <div class="docs-code-bar"><span>command</span><button type="button" data-copy="piper inspect">Copy</button></div>
+  <pre><code>piper inspect</code></pre>
+</div>
+<p>Piper connects to the source, reads tables (or samples Mongo collections), and stores a schema snapshot as <code>ir.json</code> under <code>.piper/runs/&lt;run-id&gt;/</code>.</p>
+<ul>
+  <li>Each inspect mints a new run id by default</li>
+  <li>MongoDB samples 1000 documents unless you pass <code>--sample-full</code></li>
+  <li>Inspect does not write to the target</li>
+</ul>
+
+<h2>Plan</h2>
+<div class="docs-code">
+  <div class="docs-code-bar"><span>command</span><button type="button" data-copy="piper plan --target mysql">Copy</button></div>
+  <pre><code>piper plan --target mysql</code></pre>
+</div>
+<p>Plan maps the saved snapshot to the target dialect and lists warnings. It does not need a live target connection.</p>
+<div class="docs-table-wrap">
+<table class="docs-table">
+  <thead><tr><th>Flag</th><th>What it does</th></tr></thead>
+  <tbody>
+    <tr><td><code>--target</code></td><td>Target dialect. Default <code>postgres</code>.</td></tr>
+    <tr><td><code>--strict-mode</code></td><td>Turn degrading mappings into blockers (exit 4).</td></tr>
+    <tr><td><code>--cycle-mode</code></td><td><code>strict</code> (default), <code>defer_constraints</code>, or <code>manual_break</code>.</td></tr>
+    <tr><td><code>--confirm-relationship</code></td><td>Confirm a guessed Mongo→SQL relationship.</td></tr>
+    <tr><td><code>--details</code></td><td>List every affected object from the saved plan without rebuilding it.</td></tr>
+    <tr><td><code>--force</code></td><td>Regenerate even when the plan fingerprint matches.</td></tr>
+  </tbody>
+</table>
+</div>
+<p>Warnings alone leave exit code 0. Blockers stop planning until you change flags or confirm relationships.</p>
+
+<h2>Execute</h2>
+<div class="docs-code">
+  <div class="docs-code-bar"><span>command</span><button type="button" data-copy="piper execute">Copy</button></div>
+  <pre><code>piper execute</code></pre>
+</div>
+<p>Execute applies the plan to the target. Progress order:</p>
+<ol>
+  <li>Schema (DDL)</li>
+  <li>Data (batched row copy)</li>
+  <li>Identity synchronization</li>
+  <li>Triggers</li>
+  <li>Foreign keys</li>
+  <li>Deferred foreign keys (when cycle mode defers them)</li>
+</ol>
+<p>Useful flags: <code>--upsert merge|overwrite|fail</code> (default merge), <code>--checkpoint auto|local|target-transactional</code>, <code>--batch-size</code>, <code>--ddl-only</code>, <code>--no-ddl</code>, <code>--recovery</code>, <code>--yes</code>.</p>
+
+<div class="docs-warn">
+  <p><strong>Safety</strong></p>
+  <p>Keep the source unchanged during execute. Piper does not synchronize ongoing changes or guarantee a consistent snapshot. A new run expects empty planned tables on the target.</p>
+</div>
+
+<h2>Generated files</h2>
+<div class="docs-table-wrap">
+<table class="docs-table">
+  <thead><tr><th>Path</th><th>Purpose</th></tr></thead>
+  <tbody>
+    <tr><td><code>.piper/state.json</code></td><td>Current run pointer</td></tr>
+    <tr><td><code>.piper/ledger.db</code></td><td>Run and batch progress</td></tr>
+    <tr><td><code>.piper/piper.lock</code></td><td>Exclusive execute/resume lock</td></tr>
+    <tr><td><code>.piper/runs/&lt;id&gt;/ir.json</code></td><td>Schema snapshot from inspect</td></tr>
+    <tr><td><code>.piper/runs/&lt;id&gt;/plan-*.json</code></td><td>Migration plans</td></tr>
+    <tr><td><code>.piper/runs/&lt;id&gt;/validation-*.json</code></td><td>Validate reports</td></tr>
+    <tr><td><code>.piper/runs/&lt;id&gt;/loss-report.json</code></td><td>Recorded coercions (for example NaN→NULL)</td></tr>
+  </tbody>
+</table>
+</div>
+<p><code>.piper/</code> is created private (<code>0700</code> / <code>0600</code>). Browse files with <code>piper artifacts</code>.</p>
+
+      </article>
+      <nav class="docs-pager" id="docs-pager" aria-label="Page"></nav>
+    </div>
+    <aside class="docs-toc" aria-label="On this page">
+      <p class="docs-toc-title">On this page</p>
+      <nav id="docs-toc-nav"></nav>
+    </aside>
+  </div>
+  <footer class="docs-footer">
+    <span><a href="../index.html">Piper</a> documentation</span>
+    <span>PostgreSQL 14+ · MySQL 8.0+ · MongoDB 7.0+</span>
+  </footer>
+</div>
+<script src="assets/docs.js" defer></script>
+</body>
+</html>

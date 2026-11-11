@@ -27,6 +27,8 @@ chmod +x ./piper-linux-amd64   # macOS/Linux
 
 Putting the binary on your PATH is optional. Rename it to `piper` / `piper.exe` if you want a shorter command in that folder.
 
-## Starter kits
+## Playground
 
-Matching unzip-and-run folders (binary already named `piper` / `piper.exe`) live in `../starter/piper-starter-<os>-<arch>.zip`.
+For Compose + sample datasets + a pre-placed binary, clone a platform branch of
+[PiperKitOrg/piper-examples](https://github.com/PiperKitOrg/piper-examples)
+(for example `-b darwin-arm64`). See that repo’s README.

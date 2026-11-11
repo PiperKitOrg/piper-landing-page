@@ -1,18 +1,15 @@
-# Starter kits
+# Starter kits (retired)
 
-Each zip is a ready folder for one platform. Unzip, `cd` into it, set env URLs, run `./piper` (or `.\piper.exe` on Windows).
+Starter zips are no longer shipped from this site.
 
-| Zip | Platform |
-|-----|----------|
-| `piper-starter-darwin-arm64.zip` | macOS Apple Silicon |
-| `piper-starter-darwin-amd64.zip` | macOS Intel |
-| `piper-starter-linux-amd64.zip` | Linux x86_64 |
-| `piper-starter-linux-arm64.zip` | Linux ARM64 |
-| `piper-starter-windows-amd64.zip` | Windows x86_64 |
-| `piper-starter-windows-arm64.zip` | Windows ARM64 |
+For a first try, clone the platform branch of the public playground:
 
-Inside every kit:
+https://github.com/PiperKitOrg/piper-examples
 
-- `piper` or `piper.exe` — platform binary at the folder root
-- `env.example` — `PIPER_SOURCE_URL` / `PIPER_TARGET_URL`
-- `notes/` · `scripts/` — empty folders with READMEs for your own material
+Example (macOS Apple Silicon):
+
+```bash
+git clone --recurse-submodules -b darwin-arm64 https://github.com/PiperKitOrg/piper-examples.git
+```
+
+Each OS/CPU has its own branch (`darwin-arm64`, `darwin-amd64`, `linux-amd64`, `linux-arm64`, `windows-amd64`, `windows-arm64`) with that platform’s Piper binary already in `bin/`. Sample datasets come in as git submodules.

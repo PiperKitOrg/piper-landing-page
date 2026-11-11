@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en" data-docs-page="troubleshooting">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Troubleshooting · Piper Docs</title>
+<meta name="description" content="Common Piper failures, exit codes, and what to try next.">
+<link rel="icon" href="../favicon.png" type="image/png" sizes="48x48">
+<link rel="icon" href="../favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="assets/docs.css">
+</head>
+<body>
+<div class="band-deep">
+  <div class="wrap">
+    <header class="docs-top">
+      <a class="mark" href="../index.html" aria-label="Piper home">
+        <img src="../logo.png" alt="" width="118" height="36" decoding="async">
+      </a>
+      <nav class="docs-nav" aria-label="Primary">
+        <a class="hide-sm" href="../index.html">Home</a>
+        <a href="index.html" aria-current="page">Docs</a>
+        <div class="docs-search-wrap">
+          <label class="visually-hidden" for="docs-search" style="position:absolute;left:-9999px">Search docs</label>
+          <input id="docs-search" class="docs-search" type="search" placeholder="Search docs" autocomplete="off">
+          <div id="docs-search-results" class="docs-search-results" hidden></div>
+        </div>
+        <a class="btn" href="../index.html#get">Get the binary</a>
+      </nav>
+    </header>
+  </div>
+</div>
+
+<div id="docs-backdrop" class="docs-backdrop" hidden></div>
+
+<div class="wrap">
+  <div class="docs-menu-bar">
+    <button type="button" class="docs-menu-btn" id="docs-menu-btn" aria-expanded="false" aria-controls="docs-sidebar">Menu</button>
+  </div>
+  <div class="docs-shell">
+    <aside class="docs-sidebar" id="docs-sidebar" aria-label="Documentation">
+      <nav class="docs-side-nav" id="docs-side-nav"></nav>
+    </aside>
+    <div class="docs-main">
+      <p class="docs-crumb" id="docs-crumb"></p>
+      <details class="docs-toc-mobile">
+        <summary>On this page</summary>
+        <nav id="docs-toc-mobile-nav"></nav>
+      </details>
+      <article class="docs-article">
+<h1>Troubleshooting</h1>
+<p class="docs-lede">Start with <code>piper explain</code> and the plan warnings. They are usually more specific than a generic error line.</p>
+
+<h2>First moves</h2>
+<ol>
+  <li><code>piper explain</code> — recorded failure and a next step</li>
+  <li><code>piper doctor</code> — connections and versions</li>
+  <li>Re-read the plan warnings — they are the contract for that run</li>
+</ol>
+
+<h2>Exit codes</h2>
+<div class="docs-table-wrap">
+<table class="docs-table">
+  <thead><tr><th>Code</th><th>Meaning</th></tr></thead>
+  <tbody>
+    <tr><td>0</td><td>Success</td></tr>
+    <tr><td>1</td><td>Generic error</td></tr>
+    <tr><td>2</td><td>Usage / config</td></tr>
+    <tr><td>3</td><td>Connection / auth</td></tr>
+    <tr><td>4</td><td>Plan blocked (cycle, unsupported mapping, capability, planning)</td></tr>
+    <tr><td>5</td><td>Validation failed</td></tr>
+    <tr><td>6</td><td>Migration / duplicate key failure</td></tr>
+    <tr><td>7</td><td>Cancelled</td></tr>
+    <tr><td>8</td><td>Run conflict / not found / ledger</td></tr>
+    <tr><td>9</td><td>Corrupt artifact / unsafe path</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Common situations</h2>
+<h3>Same dialect rejected</h3>
+<p>Source and target must differ. Pass the correct <code>--target</code>. Default target is <code>postgres</code>.</p>
+
+<h3>Version too old</h3>
+<p>Piper stops below PostgreSQL 14, MySQL 8.0, or MongoDB 7.0. MariaDB is not supported. Newer than tested versions warn and continue.</p>
+
+<h3>Target already has data</h3>
+<p>Empty the planned tables, or pass <code>--recovery continue</code> / <code>--allow-existing-target</code> knowing the new run starts from cursor zero with no inherited checkpoints.</p>
+
+<h3>Incomplete migration detected</h3>
+<p>Prefer <code>piper resume</code> or <code>piper execute --recovery resume</code> / <code>--resume-run &lt;id&gt;</code>. Do not invent progress by starting a fresh inspect unless you mean to.</p>
+
+<h3>piper.lock held</h3>
+<p>Another execute or resume still holds the lock (<code>piper.lock held by pid N</code>). Wait for it to finish, or investigate that process.</p>
+
+<h3>Missing run / plan / IR</h3>
+<p>Run <code>inspect</code> then <code>plan</code> before execute. Piper does not invent a schema.</p>
+
+<h3>Plan blocked on relationships</h3>
+<p>Confirm inferred Mongo relationships with <code>--confirm-relationship</code>, or adjust cycle mode for FK cycles.</p>
+
+<h3>Validation failed (exit 5)</h3>
+<p>Read the validation report. Validate does not repair data — fix the cause, then re-run validate.</p>
+
+<h2>Not verified on this site</h2>
+<p>Installers that are not listed in the homepage download table (for example third-party package managers) are outside what this documentation verifies. Use the binaries shipped here, the platform branches of <a href="https://github.com/PiperKitOrg/piper-examples">piper-examples</a>, plus <a href="../downloads/SHA256SUMS">SHA256SUMS</a>.</p>
+
+      </article>
+      <nav class="docs-pager" id="docs-pager" aria-label="Page"></nav>
+    </div>
+    <aside class="docs-toc" aria-label="On this page">
+      <p class="docs-toc-title">On this page</p>
+      <nav id="docs-toc-nav"></nav>
+    </aside>
+  </div>
+  <footer class="docs-footer">
+    <span><a href="../index.html">Piper</a> documentation</span>
+    <span>PostgreSQL 14+ · MySQL 8.0+ · MongoDB 7.0+</span>
+  </footer>
+</div>
+<script src="assets/docs.js" defer></script>
+</body>
+</html>

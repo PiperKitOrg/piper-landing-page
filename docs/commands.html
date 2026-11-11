@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en" data-docs-page="commands">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>CLI commands · Piper Docs</title>
+<meta name="description" content="Verified Piper CLI command reference with flags, defaults, and examples.">
+<link rel="icon" href="../favicon.png" type="image/png" sizes="48x48">
+<link rel="icon" href="../favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="assets/docs.css">
+</head>
+<body>
+<div class="band-deep">
+  <div class="wrap">
+    <header class="docs-top">
+      <a class="mark" href="../index.html" aria-label="Piper home">
+        <img src="../logo.png" alt="" width="118" height="36" decoding="async">
+      </a>
+      <nav class="docs-nav" aria-label="Primary">
+        <a class="hide-sm" href="../index.html">Home</a>
+        <a href="index.html" aria-current="page">Docs</a>
+        <div class="docs-search-wrap">
+          <label class="visually-hidden" for="docs-search" style="position:absolute;left:-9999px">Search docs</label>
+          <input id="docs-search" class="docs-search" type="search" placeholder="Search docs" autocomplete="off">
+          <div id="docs-search-results" class="docs-search-results" hidden></div>
+        </div>
+        <a class="btn" href="../index.html#get">Get the binary</a>
+      </nav>
+    </header>
+  </div>
+</div>
+
+<div id="docs-backdrop" class="docs-backdrop" hidden></div>
+
+<div class="wrap">
+  <div class="docs-menu-bar">
+    <button type="button" class="docs-menu-btn" id="docs-menu-btn" aria-expanded="false" aria-controls="docs-sidebar">Menu</button>
+  </div>
+  <div class="docs-shell">
+    <aside class="docs-sidebar" id="docs-sidebar" aria-label="Documentation">
+      <nav class="docs-side-nav" id="docs-side-nav"></nav>
+    </aside>
+    <div class="docs-main">
+      <p class="docs-crumb" id="docs-crumb"></p>
+      <details class="docs-toc-mobile">
+        <summary>On this page</summary>
+        <nav id="docs-toc-mobile-nav"></nav>
+      </details>
+      <article class="docs-article">
+<h1>CLI commands</h1>
+<p class="docs-lede">Every command below comes from the current Piper CLI. Prefer the guides for day-to-day use; use this page when you need exact flags.</p>
+
+<h2>Global options</h2>
+<div class="docs-table-wrap">
+<table class="docs-table">
+  <thead><tr><th>Flag</th><th>Default</th><th>Purpose</th></tr></thead>
+  <tbody>
+    <tr><td><code>--project-root</code></td><td>cwd</td><td>Directory that contains <code>.piper/</code></td></tr>
+    <tr><td><code>--output</code></td><td><code>auto</code></td><td><code>auto</code>, <code>text</code>, or <code>json</code> (auto uses JSON when stdout is not a terminal)</td></tr>
+    <tr><td><code>-q</code> / <code>--quiet</code></td><td>off</td><td>Errors only</td></tr>
+    <tr><td><code>-v</code> / <code>--verbose</code></td><td>off</td><td>Extra diagnostics</td></tr>
+    <tr><td><code>--no-color</code></td><td>off</td><td>Disable colors</td></tr>
+    <tr><td><code>--yes</code></td><td>off</td><td>Skip confirmations (does not choose recovery mode)</td></tr>
+    <tr><td><code>--timeout</code></td><td><code>0</code></td><td>Overall deadline, for example <code>30s</code> or <code>5m</code></td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>piper inspect</h2>
+<p>Connect to the source, infer schema, store a snapshot for planning.</p>
+<div class="docs-code">
+  <div class="docs-code-bar"><span>example</span><button type="button" data-copy="piper inspect">Copy</button></div>
+  <pre><code>piper inspect</code></pre>
+</div>
+<p>Flags: connection flags, <code>--run-id</code>, <code>--sample-full</code> (Mongo).</p>
+
+<h2>piper plan</h2>
+<p>Build or reuse a migration plan from the latest schema snapshot. No live target required.</p>
+<div class="docs-code">
+  <div class="docs-code-bar"><span>example</span><button type="button" data-copy="piper plan --target mysql">Copy</button></div>
+  <pre><code>piper plan --target mysql</code></pre>
+</div>
+<p>Flags: <code>--target</code> (default <code>postgres</code>), <code>--cycle-mode</code>, <code>--strict-mode</code>, <code>--force</code>, <code>--confirm-relationship</code>, <code>--details</code>, <code>--run-id</code>.</p>
+
+<h2>piper execute</h2>
+<p>Apply the planned schema and data changes to the target.</p>
+<div class="docs-code">
+  <div class="docs-code-bar"><span>example</span><button type="button" data-copy="piper execute --yes">Copy</button></div>
+  <pre><code>piper execute --yes</code></pre>
+</div>
+<p>Flags: connection flags, <code>--run-id</code>, <code>--upsert</code> (<code>merge|overwrite|fail</code>), <code>--checkpoint</code> (<code>auto|local|target-transactional</code>), <code>--batch-size</code>, <code>--no-ddl</code>, <code>--ddl-only</code>, <code>--recovery</code>, <code>--resume-run</code>, <code>--allow-existing-target</code>.</p>
+<div class="docs-warn">
+  <p><strong>Constraint</strong></p>
+  <p>Keep source data unchanged. Piper does not synchronize ongoing changes or guarantee a consistent snapshot.</p>
+</div>
+
+<h2>piper resume</h2>
+<p>Continue a paused or failed migration from the last checkpoint.</p>
+<div class="docs-code">
+  <div class="docs-code-bar"><span>example</span><button type="button" data-copy="piper resume">Copy</button></div>
+  <pre><code>piper resume</code></pre>
+</div>
+<p>Flags: connection flags, <code>--run-id</code>.</p>
+
+<h2>piper validate</h2>
+<p>Compare source and target and report differences. Exit 5 on failure.</p>
+<div class="docs-code">
+  <div class="docs-code-bar"><span>example</span><button type="button" data-copy="piper validate">Copy</button></div>
+  <pre><code>piper validate</code></pre>
+</div>
+
+<h2>piper doctor</h2>
+<p>Preflight connectivity, compatibility, and safety checks. Warnings alone do not block.</p>
+<div class="docs-code">
+  <div class="docs-code-bar"><span>example</span><button type="button" data-copy="piper doctor">Copy</button></div>
+  <pre><code>piper doctor</code></pre>
+</div>
+<p>Flags: connection flags, <code>--strict-mode</code>, <code>--ledger</code>, <code>--quick</code>, <code>--plan</code>.</p>
+
+<h2>piper connect</h2>
+<p>Test that Piper can reach the source and, when provided, the target.</p>
+<div class="docs-code">
+  <div class="docs-code-bar"><span>example</span><button type="button" data-copy="piper connect">Copy</button></div>
+  <pre><code>piper connect</code></pre>
+</div>
+
+<h2>piper status</h2>
+<p>Show state, progress, and latest validation for a run.</p>
+<div class="docs-code">
+  <div class="docs-code-bar"><span>example</span><button type="button" data-copy="piper status">Copy</button></div>
+  <pre><code>piper status</code></pre>
+</div>
+
+<h2>piper explain</h2>
+<p>Show the latest recorded failure and a suggested next step.</p>
+<div class="docs-code">
+  <div class="docs-code-bar"><span>example</span><button type="button" data-copy="piper explain">Copy</button></div>
+  <pre><code>piper explain</code></pre>
+</div>
+
+<h2>piper runs</h2>
+<p>List migration runs in this project’s <code>.piper</code> directory. <code>piper runs ls</code> is the same list.</p>
+<div class="docs-code">
+  <div class="docs-code-bar"><span>example</span><button type="button" data-copy="piper runs">Copy</button></div>
+  <pre><code>piper runs</code></pre>
+</div>
+
+<h2>piper artifacts</h2>
+<p>List, show, export, or prune run files.</p>
+<div class="docs-code">
+  <div class="docs-code-bar"><span>examples</span><button type="button" data-copy="piper artifacts ls
+piper artifacts show --path runs/&lt;id&gt;/ir.json
+piper artifacts export --run-id &lt;id&gt; --out run.zip
+piper artifacts prune --dry-run">Copy</button></div>
+  <pre><code>piper artifacts ls
+piper artifacts show --path runs/&lt;id&gt;/ir.json
+piper artifacts export --run-id &lt;id&gt; --out run.zip
+piper artifacts prune --dry-run</code></pre>
+</div>
+<p><code>prune</code> defaults: <code>--older-than 720h</code>, <code>--keep-last 5</code>. Deletion requires <code>--yes</code> (or use <code>--dry-run</code> to report only).</p>
+
+<h2>piper version</h2>
+<div class="docs-code">
+  <div class="docs-code-bar"><span>example</span><button type="button" data-copy="piper version
+piper version -v">Copy</button></div>
+  <pre><code>piper version
+piper version -v</code></pre>
+</div>
+
+<h2>Connection flags</h2>
+<p>Shared by commands that dial databases: <code>--source-url</code>, <code>--target-url</code>, <code>--*-url-file</code>, <code>--*-url-stdin</code>, <code>--no-warn-insecure-flags</code>.</p>
+<p>See also <a href="connections.html">Connecting databases</a> and <a href="troubleshooting.html">Troubleshooting</a>.</p>
+
+      </article>
+      <nav class="docs-pager" id="docs-pager" aria-label="Page"></nav>
+    </div>
+    <aside class="docs-toc" aria-label="On this page">
+      <p class="docs-toc-title">On this page</p>
+      <nav id="docs-toc-nav"></nav>
+    </aside>
+  </div>
+  <footer class="docs-footer">
+    <span><a href="../index.html">Piper</a> documentation</span>
+    <span>PostgreSQL 14+ · MySQL 8.0+ · MongoDB 7.0+</span>
+  </footer>
+</div>
+<script src="assets/docs.js" defer></script>
+</body>
+</html>

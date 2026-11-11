@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en" data-docs-page="install">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Install · Piper Docs</title>
+<meta name="description" content="Download the Piper binary or clone the playground branch for your platform.">
+<link rel="icon" href="../favicon.png" type="image/png" sizes="48x48">
+<link rel="icon" href="../favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="assets/docs.css">
+</head>
+<body>
+<div class="band-deep">
+  <div class="wrap">
+    <header class="docs-top">
+      <a class="mark" href="../index.html" aria-label="Piper home">
+        <img src="../logo.png" alt="" width="118" height="36" decoding="async">
+      </a>
+      <nav class="docs-nav" aria-label="Primary">
+        <a class="hide-sm" href="../index.html">Home</a>
+        <a href="index.html" aria-current="page">Docs</a>
+        <div class="docs-search-wrap">
+          <label class="visually-hidden" for="docs-search" style="position:absolute;left:-9999px">Search docs</label>
+          <input id="docs-search" class="docs-search" type="search" placeholder="Search docs" autocomplete="off">
+          <div id="docs-search-results" class="docs-search-results" hidden></div>
+        </div>
+        <a class="btn" href="../index.html#get">Get the binary</a>
+      </nav>
+    </header>
+  </div>
+</div>
+
+<div id="docs-backdrop" class="docs-backdrop" hidden></div>
+
+<div class="wrap">
+  <div class="docs-menu-bar">
+    <button type="button" class="docs-menu-btn" id="docs-menu-btn" aria-expanded="false" aria-controls="docs-sidebar">Menu</button>
+  </div>
+  <div class="docs-shell">
+    <aside class="docs-sidebar" id="docs-sidebar" aria-label="Documentation">
+      <nav class="docs-side-nav" id="docs-side-nav"></nav>
+    </aside>
+    <div class="docs-main">
+      <p class="docs-crumb" id="docs-crumb"></p>
+      <details class="docs-toc-mobile">
+        <summary>On this page</summary>
+        <nav id="docs-toc-mobile-nav"></nav>
+      </details>
+      <article class="docs-article">
+<h1>Install</h1>
+<p class="docs-lede">Piper is one local binary per platform. You do not need a global install, an account, or a package manager.</p>
+
+<h2>Pick your platform</h2>
+<p>Download a binary from the <a href="../index.html#get">homepage download table</a>, or clone the playground branch for your OS from <a href="https://github.com/PiperKitOrg/piper-examples">PiperKitOrg/piper-examples</a>.</p>
+<div class="docs-table-wrap">
+<table class="docs-table">
+  <thead><tr><th>Platform</th><th>Binary</th><th>Playground branch</th></tr></thead>
+  <tbody>
+    <tr><td>macOS Apple Silicon</td><td><a href="../downloads/piper-darwin-arm64">piper-darwin-arm64</a></td><td><a href="https://github.com/PiperKitOrg/piper-examples/tree/darwin-arm64"><code>darwin-arm64</code></a></td></tr>
+    <tr><td>macOS Intel</td><td><a href="../downloads/piper-darwin-amd64">piper-darwin-amd64</a></td><td><a href="https://github.com/PiperKitOrg/piper-examples/tree/darwin-amd64"><code>darwin-amd64</code></a></td></tr>
+    <tr><td>Linux x86_64</td><td><a href="../downloads/piper-linux-amd64">piper-linux-amd64</a></td><td><a href="https://github.com/PiperKitOrg/piper-examples/tree/linux-amd64"><code>linux-amd64</code></a></td></tr>
+    <tr><td>Linux ARM64</td><td><a href="../downloads/piper-linux-arm64">piper-linux-arm64</a></td><td><a href="https://github.com/PiperKitOrg/piper-examples/tree/linux-arm64"><code>linux-arm64</code></a></td></tr>
+    <tr><td>Windows x86_64</td><td><a href="../downloads/piper-windows-amd64.exe">piper-windows-amd64.exe</a></td><td><a href="https://github.com/PiperKitOrg/piper-examples/tree/windows-amd64"><code>windows-amd64</code></a></td></tr>
+    <tr><td>Windows ARM64</td><td><a href="../downloads/piper-windows-arm64.exe">piper-windows-arm64.exe</a></td><td><a href="https://github.com/PiperKitOrg/piper-examples/tree/windows-arm64"><code>windows-arm64</code></a></td></tr>
+  </tbody>
+</table>
+</div>
+<p>Checksums: <a href="../downloads/SHA256SUMS">downloads/SHA256SUMS</a>.</p>
+
+<h2>Playground (recommended for a first try)</h2>
+<p>Each platform branch of <a href="https://github.com/PiperKitOrg/piper-examples">piper-examples</a> already has the matching binary in <code>bin/</code>. <code>--recurse-submodules</code> pulls the sample datasets. Follow the repo <code>README.md</code> after cloning.</p>
+<div class="docs-code">
+  <div class="docs-code-bar"><span>macOS Apple Silicon</span><button type="button" data-copy="git clone --recurse-submodules -b darwin-arm64 https://github.com/PiperKitOrg/piper-examples.git
+cd piper-examples
+bin/piper version
+docker compose up -d">Copy</button></div>
+  <pre><code>git clone --recurse-submodules -b darwin-arm64 https://github.com/PiperKitOrg/piper-examples.git
+cd piper-examples
+bin/piper version
+docker compose up -d</code></pre>
+</div>
+<div class="docs-code">
+  <div class="docs-code-bar"><span>Windows</span><button type="button" data-copy="git clone --recurse-submodules -b windows-amd64 https://github.com/PiperKitOrg/piper-examples.git
+cd piper-examples
+bin\piper.exe version">Copy</button></div>
+  <pre><code>git clone --recurse-submodules -b windows-amd64 https://github.com/PiperKitOrg/piper-examples.git
+cd piper-examples
+bin\piper.exe version</code></pre>
+</div>
+
+<h2>Binary alone</h2>
+<p>Drop the downloaded file anywhere, rename it to <code>piper</code> if you like, and make it executable on macOS or Linux:</p>
+<div class="docs-code">
+  <div class="docs-code-bar"><span>command</span><button type="button" data-copy="chmod +x piper-darwin-arm64
+mv piper-darwin-arm64 piper
+./piper version">Copy</button></div>
+  <pre><code>chmod +x piper-darwin-arm64
+mv piper-darwin-arm64 piper
+./piper version</code></pre>
+</div>
+
+<div class="docs-note">
+  <p><strong>Note</strong></p>
+  <p>Putting Piper on your <code>PATH</code> is optional. Running <code>./piper</code> from the folder that holds the binary is enough.</p>
+</div>
+
+<h2>Verify the download</h2>
+<p>Optional, but useful:</p>
+<div class="docs-code">
+  <div class="docs-code-bar"><span>command</span><button type="button" data-copy="shasum -a 256 -c SHA256SUMS --ignore-missing">Copy</button></div>
+  <pre><code>shasum -a 256 -c SHA256SUMS --ignore-missing</code></pre>
+</div>
+
+<h2>Next</h2>
+<p>Continue with <a href="first-migration.html">Your first migration</a>, or set up URLs in <a href="connections.html">Connecting databases</a>.</p>
+
+      </article>
+      <nav class="docs-pager" id="docs-pager" aria-label="Page"></nav>
+    </div>
+    <aside class="docs-toc" aria-label="On this page">
+      <p class="docs-toc-title">On this page</p>
+      <nav id="docs-toc-nav"></nav>
+    </aside>
+  </div>
+  <footer class="docs-footer">
+    <span><a href="../index.html">Piper</a> documentation</span>
+    <span>PostgreSQL 14+ · MySQL 8.0+ · MongoDB 7.0+</span>
+  </footer>
+</div>
+<script src="assets/docs.js" defer></script>
+</body>
+</html>
