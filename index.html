@@ -1,12 +1,29 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#F5F7F3;color:#263F49}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
-<title>Piper</title>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Piper — migrate databases with a plan you can read first</title>
+<meta name="description" content="Piper migrates schema and data across PostgreSQL, MySQL, and MongoDB. It carefully maps types and highlights potential issues before anything is written.">
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="icon" href="favicon.png" type="image/png" sizes="48x48">
-<link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="canonical" href="https://piperbyadam.vercel.app/">
+<meta property="og:title" content="Piper — migrate databases with a plan you can read first">
+<meta property="og:description" content="Piper migrates schema and data across PostgreSQL, MySQL, and MongoDB. It carefully maps types and highlights potential issues before anything is written.">
+<meta property="og:url" content="https://piperbyadam.vercel.app/">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://piperbyadam.vercel.app/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Piper — migrate databases with a plan you can read first">
+<meta name="twitter:description" content="Piper migrates schema and data across PostgreSQL, MySQL, and MongoDB. It carefully maps types and highlights potential issues before anything is written.">
+<meta name="twitter:image" content="https://piperbyadam.vercel.app/og.png">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/favicon.png" type="image/png" sizes="48x48">
+<link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#F5F7F3;color:#263F49}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
 <style>
 /* Deep Current — precision without noise.
    Hero + footer sit on Deep Ocean; content rides Porcelain.
@@ -48,10 +65,19 @@
   --body:'Instrument Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
   --mono:'JetBrains Mono',ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace;
   --ease:background-color .15s ease,border-color .15s ease,color .15s ease,filter .15s ease;
+  --scroll-size:6px;
+  --scroll-track:transparent;
+  --scroll-thumb:#9BB4BC;
+  --scroll-thumb-hover:var(--ocean-slate);
   color-scheme:light;
 }
 
-*{box-sizing:border-box}
+*{box-sizing:border-box;scrollbar-width:thin;scrollbar-color:var(--scroll-thumb) var(--scroll-track)}
+*::-webkit-scrollbar{width:var(--scroll-size);height:var(--scroll-size)}
+*::-webkit-scrollbar-track{background:var(--scroll-track)}
+*::-webkit-scrollbar-thumb{background:var(--scroll-thumb);border-radius:999px;border:1px solid transparent;background-clip:padding-box}
+*::-webkit-scrollbar-thumb:hover{background:var(--scroll-thumb-hover);border:1px solid transparent;background-clip:padding-box}
+*::-webkit-scrollbar-corner{background:transparent}
 html{scroll-behavior:smooth}
 body{
   margin:0;
@@ -157,13 +183,13 @@ h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
 @media (max-width:900px){.hero{grid-template-columns:minmax(0,1fr);gap:36px;padding-block:40px 48px}}
 
 /* sections */
-section{padding-block:80px;border-top:1px solid var(--line)}
+section{padding-block:72px;border-top:1px solid var(--line)}
 .band-soft section{border-top-color:transparent}
 .eyebrow{font:500 .78rem var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--accent-text);margin-bottom:14px}
-h2{font-weight:700;font-size:clamp(1.9rem,3.8vw,3rem);line-height:1.05;letter-spacing:-.028em;max-width:18em;color:var(--fg)}
-.intro{margin-top:18px;max-width:38em;color:var(--muted)}
-.split{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:48px;align-items:start}
-@media (max-width:900px){.split{grid-template-columns:minmax(0,1fr);gap:32px}section{padding-block:56px}}
+h2{font-weight:700;font-size:clamp(1.75rem,3.4vw,2.75rem);line-height:1.08;letter-spacing:-.028em;max-width:18em;color:var(--fg)}
+.intro{margin-top:14px;max-width:36em;color:var(--muted)}
+.split{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:40px;align-items:start}
+@media (max-width:900px){.split{grid-template-columns:minmax(0,1fr);gap:28px}section{padding-block:52px}}
 
 /* pipeline tabs */
 .pipe{margin-top:40px;display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:32px;align-items:start}
@@ -178,35 +204,47 @@ h2{font-weight:700;font-size:clamp(1.9rem,3.8vw,3rem);line-height:1.05;letter-sp
 .tab .ds{color:var(--muted);font-size:.97rem;margin-top:4px}
 .tab .tc{margin-top:8px;font:400 .72rem var(--mono);letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
 .panel[hidden]{display:none}
-.loop{margin-top:32px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0;border:1px solid var(--line);background:var(--bg)}
-.loop > div{padding:22px 24px}
-.loop > div + div{border-left:1px solid var(--line)}
-.loop h3{font-size:1.25rem;font-weight:700;letter-spacing:-.02em}
-.loop p{margin-top:8px;color:var(--muted);font-size:.98rem}
-@media (max-width:700px){.loop{grid-template-columns:minmax(0,1fr)}.loop > div + div{border-left:0;border-top:1px solid var(--line)}}
+.loop{margin-top:28px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 36px}
+.loop h3{font-size:1.15rem;font-weight:700;letter-spacing:-.02em}
+.loop p{margin-top:6px;color:var(--muted);font-size:.97rem}
+.loop a{color:var(--accent-text);text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--line)}
+.loop a:hover{text-decoration-color:var(--accent-text)}
+@media (max-width:700px){.loop{grid-template-columns:minmax(0,1fr);gap:18px}}
 
-/* why: success vs silent loss board */
-.loss{margin-top:40px;border:1px solid var(--line);border-radius:4px;overflow:hidden;background:var(--bg)}
-.loss-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 18px;padding:14px 18px;border-bottom:1px solid var(--line);background:var(--bg2)}
-.loss-title{font:500 .72rem var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-.loss-stats{display:flex;flex-wrap:wrap;gap:8px 16px;font:400 .85rem/1.2 var(--mono);color:var(--fg)}
-.loss-stats .ok{color:var(--okc)}
-.loss-table{width:100%;border-collapse:collapse;table-layout:fixed}
-.loss-table th,.loss-table td{padding:16px 18px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
-.loss-table tr:last-child td{border-bottom:0}
-.loss-table thead th{font:500 .68rem var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--bg2);padding-block:12px}
-.loss-table .src{width:22%;font:500 .9rem var(--mono);color:var(--fg);word-break:break-word}
-.loss-table .evt{width:48%;color:var(--muted);font-size:.98rem;line-height:1.45}
-.loss-table .tag{width:30%;font:500 .85rem var(--mono);white-space:nowrap}
-.loss-table .tag .warn{color:var(--widen)}
-.loss-table .tag .skip{color:var(--skip)}
-.loss-table .tag .kind{color:var(--muted);font-weight:400}
-.why-close{margin-top:36px;max-width:34em}
+/* why close */
+.why-close{margin-top:28px;max-width:34em}
 .why-close .punch{margin-top:10px;font:700 clamp(1.25rem,2.2vw,1.7rem)/1.25 var(--display);letter-spacing:-.02em}
 .why-close .mark-write{text-decoration:underline;text-decoration-color:var(--accent-text);text-decoration-thickness:2px;text-underline-offset:4px}
+.why-close a{color:var(--accent-text);text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--line)}
+.why-close a:hover{text-decoration-color:var(--accent-text)}
+
+/* type fidelity */
+.type-classes{margin-top:28px;display:flex;flex-wrap:wrap;gap:10px 22px;font:500 .85rem var(--mono)}
+.type-classes span{display:inline-flex;align-items:baseline;gap:8px}
+.type-classes .lab{letter-spacing:.04em;text-transform:uppercase;font-size:.72rem}
+.type-classes .lab.exact{color:var(--okc)}
+.type-classes .lab.xformed{color:var(--guess)}
+.type-classes .lab.lossy{color:var(--widen)}
+.type-classes .hint{color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;font-size:.9rem;font-family:var(--body)}
+.type-map{margin-top:28px;border:1px solid var(--line);border-radius:4px;overflow:hidden;background:var(--bg)}
+.type-map table{width:100%;border-collapse:collapse;table-layout:fixed}
+.type-map th,.type-map td{padding:14px 16px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.type-map tr:last-child td{border-bottom:0}
+.type-map thead th{font:500 .68rem var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--bg2);padding-block:11px}
+.type-map .src,.type-map .tgt{font:500 .88rem var(--mono);color:var(--fg);word-break:break-word}
+.type-map .tgt{color:var(--muted)}
+.type-map .arrow{width:2.2em;color:var(--muted);font:500 .88rem var(--mono);text-align:center;padding-inline:4px}
+.type-map .cls{width:7.5em;font:700 .68rem var(--mono);letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+.type-map .cls.exact{color:var(--okc)}
+.type-map .cls.xformed{color:var(--guess)}
+.type-map .cls.lossy{color:var(--widen)}
+.type-map .note{color:var(--muted);font-size:.95rem;line-height:1.45}
+.type-foot{margin-top:18px;max-width:42em;color:var(--muted);font-size:.95rem}
+.type-foot a{color:var(--accent-text);text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--line)}
+.type-foot a:hover{text-decoration-color:var(--accent-text)}
 @media (max-width:720px){
-  .loss{overflow-x:auto}
-  .loss-table{min-width:560px}
+  .type-map{overflow-x:auto}
+  .type-map table{min-width:640px}
 }
 
 /* honesty words */
@@ -216,9 +254,13 @@ h2{font-weight:700;font-size:clamp(1.9rem,3.8vw,3rem);line-height:1.05;letter-sp
 .word.wd b{color:var(--widen)} .word.gs b{color:var(--guess)} .word.sk b{color:var(--skip)}
 .word p{color:var(--muted);font-size:.98rem}
 .word p strong{color:var(--fg);font-weight:600}
+.word a{color:var(--accent-text);text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--line)}
+.word a:hover{text-decoration-color:var(--accent-text)}
 .strict{margin-top:28px;padding:20px 22px;border:1px solid var(--accent-text);background:var(--bg)}
 .strict h3{font-size:1.15rem;font-weight:700;letter-spacing:-.015em}
 .strict p{margin-top:6px;color:var(--muted);font-size:.98rem}
+.strict a{color:var(--accent-text);text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--line)}
+.strict a:hover{text-decoration-color:var(--accent-text)}
 
 /* operator */
 .ops{margin-top:36px;display:grid;gap:0;border-top:1px solid var(--line)}
@@ -233,6 +275,7 @@ h2{font-weight:700;font-size:clamp(1.9rem,3.8vw,3rem);line-height:1.05;letter-sp
 table.mx{border-collapse:collapse;width:100%;min-width:480px;font-family:var(--mono);font-size:.82rem;background:var(--bg)}
 .mx th,.mx td{border:1px solid var(--line);padding:16px 14px;text-align:left;vertical-align:middle}
 .mx thead th{font-weight:500;color:var(--muted);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;background:var(--bg2)}
+.mx-key{white-space:nowrap}
 .mx tbody th{font-weight:700;background:var(--bg2);font-size:.85rem;color:var(--fg)}
 .mx td.yes{color:var(--fg)}
 .mx td.yes small{display:block;color:var(--muted);font-size:.72rem;margin-top:2px}
@@ -241,18 +284,22 @@ table.mx{border-collapse:collapse;width:100%;min-width:480px;font-family:var(--m
 .engines b{color:var(--fg);font-weight:500}
 
 /* boundaries */
-.bound{margin-top:40px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0;border:1px solid var(--line);background:var(--bg)}
-.bound > div{padding:28px}
-.bound > div + div{border-left:1px solid var(--line);background:var(--bg2)}
-.bound h3{font-size:1.4rem;font-weight:700;letter-spacing:-.02em;margin-bottom:18px}
-.bound ul{list-style:none;margin:0;padding:0;display:grid;gap:14px}
-.bound li{display:grid;grid-template-columns:22px 1fr;gap:8px}
-.bound li::before{font:700 .95rem var(--mono);line-height:1.6}
-.claims li::before{content:"+";color:var(--okc)}
-.refuses li::before{content:"\00D7";color:var(--skip)}
-.bound li b{font-weight:600}
-.bound li span{display:block;color:var(--muted);font-size:.95rem}
-@media (max-width:800px){.bound{grid-template-columns:minmax(0,1fr)}.bound > div + div{border-left:0;border-top:1px solid var(--line)}}
+.support{margin-top:36px}
+.support h3,.scope-out h3{font-size:1.05rem;font-weight:700;letter-spacing:-.015em;margin-bottom:16px}
+.support-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;border:1px solid var(--line);background:var(--line);border-radius:4px;overflow:hidden}
+.support-grid > div{background:var(--bg);padding:20px 18px}
+.support-grid b{display:block;font-weight:600;font-size:1rem;letter-spacing:-.01em;color:var(--fg)}
+.support-grid p{margin-top:6px;color:var(--muted);font-size:.95rem;line-height:1.45}
+.scope-out{margin-top:28px;padding:20px 22px;border-left:3px solid var(--line);background:var(--bg2)}
+.scope-out h3{color:var(--muted);font-weight:600;margin-bottom:12px}
+.scope-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 28px}
+.scope-list li{color:var(--muted);font-size:.95rem;padding-left:1.1em;position:relative}
+.scope-list li::before{content:"–";position:absolute;left:0;color:var(--muted)}
+.scope-note{margin-top:18px;font-size:.92rem;color:var(--muted)}
+.scope-note a{color:var(--accent-text);text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--line)}
+.scope-note a:hover{text-decoration-color:var(--accent-text)}
+@media (max-width:800px){.support-grid{grid-template-columns:minmax(0,1fr)}.scope-list{grid-template-columns:minmax(0,1fr)}}
+@media (min-width:801px) and (max-width:980px){.support-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
 /* get */
 .get{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:48px;align-items:start}
@@ -301,6 +348,28 @@ footer .mono{font-family:var(--mono);font-size:.8rem}
 footer a{color:inherit;text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--line);transition:var(--ease)}
 footer a:hover{color:var(--fg);text-decoration-color:var(--fg)}
 </style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Piper",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "macOS, Linux, Windows",
+  "description": "Piper migrates schema and data across PostgreSQL, MySQL, and MongoDB. It carefully maps types and highlights potential issues before anything is written.",
+  "url": "https://piperbyadam.vercel.app/",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "author": {
+    "@type": "Person",
+    "name": "Adam"
+  }
+}
+</script>
+</head>
+<body>
 
 <div class="band band-deep" id="top">
 <div class="wrap">
@@ -311,12 +380,12 @@ footer a:hover{color:var(--fg);text-decoration-color:var(--fg)}
   </a>
   <nav class="nav" aria-label="Primary">
     <a class="l" href="#how">How it works</a>
-    <a class="l" href="#progress">Progress</a>
-    <a class="l" href="#honesty">Warnings</a>
-    <a class="l" href="#matrix">Matrix</a>
-    <a class="l" href="#limits">Limits</a>
+    <a class="l" href="#honesty">Plan first</a>
+    <a class="l" href="#types">Types</a>
+    <a class="l" href="#matrix">Supported</a>
+    <a class="l" href="#limits">Boundaries</a>
     <a href="docs/index.html">Docs</a>
-    <a class="btn p" href="#get">Get the binary</a>
+    <a class="btn p" href="#get">Get Piper</a>
   </nav>
 </header>
 
@@ -325,11 +394,11 @@ footer a:hover{color:var(--fg);text-decoration-color:var(--fg)}
   <div>
     <p class="kicker">PostgreSQL · MySQL · MongoDB</p>
     <h1>Know <em>what changes</em> before Piper writes a byte.</h1>
-    <p class="lede">Piper is a local CLI that migrates schema and data across PostgreSQL, MySQL, and MongoDB. It plans offline from a snapshot, <strong>warns on skips, widenings, and omissions its mappings know about</strong>, and touches the target only when you run execute.</p>
+    <p class="lede">Moving between databases shouldn't mean guessing what happens to your data. Piper handles schema and data migration across PostgreSQL, MySQL, and MongoDB, carefully maps types, and highlights potential issues before anything is written.</p>
     <div class="row">
-      <a class="btn p" href="#get">Get the binary</a>
-      <a class="btn" href="#get">Starter zips by platform</a>
-      <a class="btn q" href="#honesty">See a plan</a>
+      <a class="btn p" href="#get">Get Piper</a>
+      <a class="btn" href="#get">Try the playground</a>
+      <a class="btn q" href="docs/index.html">Read the docs</a>
     </div>
     <p class="facts" aria-label="Key facts"><span>single binary</span><span>no account</span><span>no daemon</span><span>no telemetry</span></p>
   </div>
@@ -356,29 +425,29 @@ footer a:hover{color:var(--fg);text-decoration-color:var(--fg)}
 <!-- HOW IT WORKS -->
 <section id="how">
   <p class="eyebrow">How it works</p>
-  <h2>Inspect. Plan. Execute. Then check the work separately.</h2>
-  <p class="intro">Four commands, in that order. The plan comes from a snapshot, so reading it costs no connection to the target. The target is only for execute.</p>
+  <h2>Four steps. Plan before you write.</h2>
+  <p class="intro">You're in control from start to finish. Inspect your database, review what Piper plans to do, and migrate only when you're ready. Afterwards, validate the results to check that everything went as planned.</p>
 
   <div class="pipe">
     <div class="tabs" role="tablist" aria-label="Migration stages">
       <button class="tab" role="tab" id="t-inspect" aria-controls="p-inspect" aria-selected="true">
         <span class="n">1</span><span class="cmd">piper inspect</span>
-        <span class="ds">Reads the source schema and writes a snapshot to <code>.piper/</code>.</span>
+        <span class="ds">Take a closer look at your source database. Piper examines its structure and saves what it finds locally, ready for planning.</span>
         <span class="tc">reads source</span>
       </button>
       <button class="tab" role="tab" id="t-plan" aria-controls="p-plan" aria-selected="false" tabindex="-1">
         <span class="n">2</span><span class="cmd">piper plan</span>
-        <span class="ds">Maps the snapshot to the target dialect and lists the plan warnings it raises.</span>
-        <span class="tc">offline from snapshot</span>
+        <span class="ds">See how your database will be migrated, including type conversions, dependencies, and potential issues. Review everything before making changes.</span>
+        <span class="tc">plans locally</span>
       </button>
       <button class="tab" role="tab" id="t-execute" aria-controls="p-execute" aria-selected="false" tabindex="-1">
         <span class="n">3</span><span class="cmd">piper execute</span>
-        <span class="ds">Creates structure and copies data. If the process stops, <code>resume</code> continues from the last completed batch.</span>
+        <span class="ds">Ready to migrate? Piper creates the target structure and transfers your data in the right order. If interrupted, you can resume without starting over.</span>
         <span class="tc">writes target</span>
       </button>
       <button class="tab" role="tab" id="t-validate" aria-controls="p-validate" aria-selected="false" tabindex="-1">
         <span class="n">4</span><span class="cmd">piper validate</span>
-        <span class="ds">Re-reads both sides and compares. It does not use execute's results.</span>
+        <span class="ds">Check how the migration went. Piper compares the source and target using a defined set of checks to help you spot discrepancies.</span>
         <span class="tc">reads both sides</span>
       </button>
     </div>
@@ -469,12 +538,12 @@ footer a:hover{color:var(--fg);text-decoration-color:var(--fg)}
 
   <div class="loop">
     <div>
-      <h3>Resumable by design</h3>
-      <p>Long copies get interrupted. Piper keeps progress in <code>.piper/</code>, so <code>resume</code> continues from the last completed batch and does not undo finished tables.</p>
+      <h3>Pick up where you left off</h3>
+      <p>If a long copy stops, <code>piper resume</code> continues from the last finished batch. Completed tables stay put.</p>
     </div>
     <div>
-      <h3>Validate does not trust execute</h3>
-      <p>A green checklist from the tool that did the writing is a claim. Validate re-reads both databases and runs its own checks — row counts, relationship integrity, JSON values, numeric precision — instead of trusting execute's report.</p>
+      <h3>Validate re-checks both sides</h3>
+      <p>After the write, Piper re-reads source and target for row counts, planned foreign keys, and recorded coercions — it does not trust execute’s report. Details in the <a href="docs/resume-and-validate.html">docs</a>.</p>
     </div>
   </div>
 </section>
@@ -487,18 +556,18 @@ footer a:hover{color:var(--fg);text-decoration-color:var(--fg)}
   <div class="split">
     <div>
       <p class="eyebrow">During execute</p>
-      <h2>Watch schema finish, then each table copy as it runs.</h2>
-      <p class="intro">Follow your migration as it runs, from schema creation to data transfer, with row counts for each table and a batch progress bar for the active one. Resume clearly marks finished tables as <code>already completed</code>, while keeping the reminder to leave source data unchanged in view.</p>
+      <h2>See every table as it copies.</h2>
+      <p class="intro">Schema first, then each table with a row count. Large tables show a batch bar so a long run is measurable — not a blank wait.</p>
       <div class="ops">
-        <div class="op"><b>Source stays still</b><p>One line under the title reminds you Piper copies a static dataset — it does not sync ongoing writes.</p></div>
-        <div class="op"><b>Batch progress</b><p>Large tables show filled/empty blocks and <code>done/total batches</code> so a long copy is measurable, not a blank wait.</p></div>
-        <div class="op"><b>Resume is explicit</b><p>Tables finished in an earlier attempt read <code>already completed</code>. Partially finished ones continue from the checkpoint.</p></div>
+        <div class="op"><b>Static source</b><p>Piper copies the data it reads as it goes. It does not follow live writes — leave the source unchanged until you’re done.</p></div>
+        <div class="op"><b>Batch progress</b><p>Active tables show filled blocks and <code>done/total batches</code> so you always know how far you are.</p></div>
+        <div class="op"><b>Clear resume</b><p>Finished tables show as <code>already completed</code>. Partial ones continue from the checkpoint.</p></div>
       </div>
     </div>
 
     <figure class="term" style="margin:0" aria-label="Sample live output of piper execute">
       <div class="term-bar"><b>piper execute</b><span>mysql → postgres · in progress</span></div>
-<pre><span class="d">$</span> piper --yes execute
+<pre><span class="d">$</span> piper execute --yes
 
 <span class="ttl">Piper migration</span>
 
@@ -521,57 +590,79 @@ footer a:hover{color:var(--fg);text-decoration-color:var(--fg)}
 <div class="wrap">
 <!-- WHY -->
 <section id="why">
-  <p class="eyebrow">Why it exists</p>
-  <h2>A migration can succeed and still be wrong.</h2>
-  <p class="intro">Most tools measure whether the copy finished. Few say whether the data still means what it meant. Piper treats those as two different questions.</p>
+  <p class="eyebrow">Why Piper</p>
+  <h2>A migration can finish and still be wrong.</h2>
+  <p class="intro">“Copied successfully” is not the same as “still means the same thing.” Cross-engine moves change types, drop constraints, and omit indexes — unless something names those changes first.</p>
+  <div class="why-close">
+    <p class="eyebrow">So the plan comes first</p>
+    <p class="punch">Known losses show up as plan warnings <span class="mark-write">before the first write</span> — while you can still say no. <a href="#types">See how types are handled.</a></p>
+  </div>
+</section>
 
-  <div class="loss">
-    <div class="loss-head">
-      <span class="loss-title">What the tool reported</span>
-      <div class="loss-stats">
-        <span>exit code 0</span>
-        <span>14 tables copied</span>
-        <span class="ok">0 errors</span>
-      </div>
-    </div>
-    <table class="loss-table">
-      <caption style="position:absolute;left:-9999px">Silent losses after a successful migration report</caption>
+<!-- TYPES -->
+<section id="types">
+  <p class="eyebrow">Type fidelity</p>
+  <h2>Types keep their meaning. Compromises are named.</h2>
+  <p class="intro">Cross-engine types rarely match one-to-one. Piper picks the closest target type that still holds the value — and warns when it cannot.</p>
+
+  <div class="type-classes" aria-label="Mapping classes">
+    <span><span class="lab exact">Exact</span> <span class="hint">same meaning</span></span>
+    <span><span class="lab xformed">Transformed</span> <span class="hint">different type, values kept</span></span>
+    <span><span class="lab lossy">Lossy</span> <span class="hint">known loss, warned — strict mode blocks these</span></span>
+  </div>
+
+  <div class="type-map">
+    <table>
+      <caption style="position:absolute;left:-9999px">Verified source-to-target type mappings</caption>
       <thead>
         <tr>
-          <th scope="col">In the source</th>
-          <th scope="col">What happened anyway</th>
-          <th scope="col">Where Piper names it</th>
+          <th scope="col">Source</th>
+          <th scope="col" class="arrow" aria-hidden="true"></th>
+          <th scope="col">Target</th>
+          <th scope="col">Class</th>
+          <th scope="col">Outcome</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="src">numeric(12,2)</td>
-          <td class="evt">Read back as a float. Rounding nobody planned.</td>
-          <td class="tag"><span class="warn">WARN</span> <span class="kind">type mapping</span></td>
+          <td class="src">NUMERIC(12,2)</td>
+          <td class="arrow" aria-hidden="true">→</td>
+          <td class="tgt">NUMERIC(12,2) / DECIMAL(12,2)</td>
+          <td class="cls exact">Exact</td>
+          <td class="note">Precision and scale stay.</td>
         </tr>
         <tr>
-          <td class="src">timestamptz</td>
-          <td class="evt">Stored without its zone. The same instant reads differently.</td>
-          <td class="tag"><span class="warn">WARN</span> <span class="kind">type mapping</span></td>
+          <td class="src">BIGINT UNSIGNED</td>
+          <td class="arrow" aria-hidden="true">→</td>
+          <td class="tgt">NUMERIC / decimal128</td>
+          <td class="cls xformed">Transformed</td>
+          <td class="note">Values above 2⁶³−1 are not clipped to a signed bigint.</td>
         </tr>
         <tr>
-          <td class="src">FOREIGN KEY</td>
-          <td class="evt">Never recreated in the target. The log said nothing.</td>
-          <td class="tag"><span class="skip">SKIP</span> <span class="kind">relationship</span></td>
+          <td class="src">MySQL TIME</td>
+          <td class="arrow" aria-hidden="true">→</td>
+          <td class="tgt">Postgres INTERVAL</td>
+          <td class="cls xformed">Transformed</td>
+          <td class="note">Negative and longer-than-24h durations stay valid.</td>
         </tr>
         <tr>
-          <td class="src">INDEX</td>
-          <td class="evt">Dropped because the target had no name for it. Queries got slower later.</td>
-          <td class="tag"><span class="warn">WARN</span> <span class="kind">index</span></td>
+          <td class="src">Decimal beyond decimal128</td>
+          <td class="arrow" aria-hidden="true">→</td>
+          <td class="tgt">Mongo double</td>
+          <td class="cls lossy">Lossy</td>
+          <td class="note">Plan warns that float can lose precision.</td>
+        </tr>
+        <tr>
+          <td class="src">DATETIME(6)</td>
+          <td class="arrow" aria-hidden="true">→</td>
+          <td class="tgt">Mongo date</td>
+          <td class="cls lossy">Lossy</td>
+          <td class="note">Fractional seconds drop from 6 digits to 3; near-identical values can collide. Named in the plan.</td>
         </tr>
       </tbody>
     </table>
   </div>
-
-  <div class="why-close">
-    <p class="eyebrow">So the plan says it first</p>
-    <p class="punch">For the mappings and catalog facts Piper inspects, these losses show up as plan warnings, <span class="mark-write">before the first write</span>, where you can still say no.</p>
-  </div>
+  <p class="type-foot">Unbounded MySQL decimals become <code>DECIMAL(65,30)</code> — bare <code>DECIMAL</code> is <code>(10,0)</code> and would round <code>9.99</code> to <code>10</code>. <a href="docs/what-changes.html">Full type behavior</a>.</p>
 </section>
 </div>
 
@@ -581,17 +672,17 @@ footer a:hover{color:var(--fg);text-decoration-color:var(--fg)}
 <section id="honesty">
   <div class="split">
     <div>
-      <p class="eyebrow">Plan warnings</p>
-      <h2>Known skips, widenings, and omissions are named up front.</h2>
-      <p class="intro">When the planner cannot preserve a fact exactly — within the type maps, index rules, and catalog objects it inspects — it records a warning before anything runs. You read those in the terminal, and they stay in the plan record. That is not a claim that every possible semantic drift is covered.</p>
+      <p class="eyebrow">Plan first</p>
+      <h2>See the tradeoffs before anything runs.</h2>
+      <p class="intro">When Piper can’t preserve something exactly, it names that in the plan — before execute. Warnings stay in the terminal and in the plan record so you can review them with the team.</p>
       <div class="words">
-        <div class="word wd"><b>widen</b><p><strong>The column lands in a broader type.</strong> Values survive, but the source's limit no longer applies.</p></div>
-        <div class="word gs"><b>omit</b><p><strong>An index or method has no equivalent.</strong> Piper names the ones it refuses to invent a stand-in for.</p></div>
-        <div class="word sk"><b>skip</b><p><strong>Piper will not migrate it.</strong> Views, triggers, routines, and relationships it cannot hold on the target are listed and left behind, not dropped quietly.</p></div>
+        <div class="word wd"><b>widen</b><p><strong>A broader type that still holds the value</strong> — for example unsigned integers mapped to numeric. Lossy float or truncation paths are called out under <a href="#types">Types</a>.</p></div>
+        <div class="word gs"><b>omit</b><p><strong>No clean equivalent on the target.</strong> Piper names it instead of inventing a stand-in.</p></div>
+        <div class="word sk"><b>skip</b><p><strong>Left behind on purpose.</strong> Views, triggers, routines, and unsupported relationships are listed — not dropped quietly.</p></div>
       </div>
       <div class="strict">
-        <h3>Strict mode, for when a warning should stop the line.</h3>
-        <p>Use it in CI, or any time you would rather be told no than accept a skip you didn't expect.</p>
+        <h3>Strict mode blocks lossy mappings and skips.</h3>
+        <p>Degrade paths and omissions fail the plan. A deliberate substitute type — like unsigned → numeric — is warned and still allowed. Full mapping detail lives in <a href="docs/what-changes.html">What changes</a>.</p>
       </div>
     </div>
 
@@ -633,14 +724,14 @@ footer a:hover{color:var(--fg);text-decoration-color:var(--fg)}
 <section id="operator">
   <div class="split">
     <div>
-      <p class="eyebrow">Operator reality</p>
-      <h2>A serious CLI, kept on your machine.</h2>
-      <p class="intro">No account, no daemon, no telemetry. Piper is one binary, and everything it produces stays in <code>.piper/</code> next to where you ran it.</p>
+      <p class="eyebrow">Built for operators</p>
+      <h2>One binary. Runs on your machine.</h2>
+      <p class="intro">No account, no daemon, no telemetry. Everything Piper produces stays in <code>.piper/</code> next to where you ran it.</p>
       <div class="ops">
-        <div class="op"><b>Connection URLs</b><p>Come from the environment, so credentials stay out of shell history and scripts.</p></div>
-        <div class="op"><b>piper doctor</b><p>An optional preflight. Checks connectivity, direction, versions, and live-target risks before you spend time on a plan.</p></div>
-        <div class="op"><b>JSON output</b><p>Use <code>--output json</code> so CI can gate on the same checks and warnings you read in the terminal.</p></div>
-        <div class="op"><b>Local artifacts</b><p>Snapshots, plans, and progress live in <code>.piper/</code>. You can read them, commit them, or delete them.</p></div>
+        <div class="op"><b>Env credentials</b><p>Connection URLs come from the environment, so secrets stay out of shell history.</p></div>
+        <div class="op"><b>piper doctor</b><p>Optional preflight for connectivity, direction, versions, and live-target risks.</p></div>
+        <div class="op"><b>CI-friendly</b><p><code>--output json</code> lets pipelines gate on the same checks you see in the terminal.</p></div>
+        <div class="op"><b>Local artifacts</b><p>Snapshots, plans, and progress live in <code>.piper/</code> — read them, commit them, or delete them.</p></div>
       </div>
     </div>
 
@@ -702,19 +793,19 @@ footer a:hover{color:var(--fg);text-decoration-color:var(--fg)}
 <section id="matrix">
   <div class="split">
     <div>
-      <p class="eyebrow">Capability matrix</p>
-      <h2>Six directions. Never the same dialect.</h2>
-      <p class="intro">Piper only plans moves where the dialect changes, because that is where meaning drifts. Same-dialect copies are out of scope on purpose.</p>
+      <p class="eyebrow">Supported</p>
+      <h2>Six directions. Different engines only.</h2>
+      <p class="intro">Piper plans moves between different engines — that’s where meaning drifts. Same-engine copies are out of scope on purpose. MariaDB is not supported.</p>
       <div class="engines"><span><b>PostgreSQL</b> 14+</span><span><b>MySQL</b> 8.0+</span><span><b>MongoDB</b> 7.0+</span></div>
     </div>
     <div class="mxwrap">
       <table class="mx">
         <caption style="position:absolute;left:-9999px">Supported source and target pairs</caption>
-        <thead><tr><th scope="col">from ↓ &nbsp;to →</th><th scope="col">PostgreSQL</th><th scope="col">MySQL</th><th scope="col">MongoDB</th></tr></thead>
+        <thead><tr><th scope="col"><span class="mx-key">from ↓</span> <span class="mx-key">to →</span></th><th scope="col">PostgreSQL</th><th scope="col">MySQL</th><th scope="col">MongoDB</th></tr></thead>
         <tbody>
-          <tr><th scope="row">PostgreSQL</th><td class="no">same dialect<br>out of scope</td><td class="yes">pg → mysql<small>plan · execute · validate</small></td><td class="yes">pg → mongo<small>plan · execute · validate</small></td></tr>
-          <tr><th scope="row">MySQL</th><td class="yes">mysql → pg<small>plan · execute · validate</small></td><td class="no">same dialect<br>out of scope</td><td class="yes">mysql → mongo<small>plan · execute · validate</small></td></tr>
-          <tr><th scope="row">MongoDB</th><td class="yes">mongo → pg<small>plan · execute · validate</small></td><td class="yes">mongo → mysql<small>plan · execute · validate</small></td><td class="no">same dialect<br>out of scope</td></tr>
+          <tr><th scope="row">PostgreSQL</th><td class="no">same engine<br>out of scope</td><td class="yes">pg → mysql<small>plan · execute · validate</small></td><td class="yes">pg → mongo<small>plan · execute · validate</small></td></tr>
+          <tr><th scope="row">MySQL</th><td class="yes">mysql → pg<small>plan · execute · validate</small></td><td class="no">same engine<br>out of scope</td><td class="yes">mysql → mongo<small>plan · execute · validate</small></td></tr>
+          <tr><th scope="row">MongoDB</th><td class="yes">mongo → pg<small>plan · execute · validate</small></td><td class="yes">mongo → mysql<small>plan · execute · validate</small></td><td class="no">same engine<br>out of scope</td></tr>
         </tbody>
       </table>
     </div>
@@ -726,32 +817,51 @@ footer a:hover{color:var(--fg);text-decoration-color:var(--fg)}
 <div class="wrap">
 <!-- LIMITS -->
 <section id="limits">
-  <p class="eyebrow">Trust boundaries</p>
-  <h2>What v1 claims, and what it refuses.</h2>
-  <p class="intro">A short list of promises is easier to keep than a long one. Everything on the right is a decision, not a gap we forgot. Warnings cover mappings and catalog facts Piper inspects — not every imaginable semantic change.</p>
-  <div class="bound">
-    <div class="claims">
-      <h3>Piper claims</h3>
-      <ul>
-        <li><div><b>Six cross-dialect directions</b><span>Between PostgreSQL, MySQL, and MongoDB.</span></div></li>
-        <li><div><b>Schema and data, with a plan first</b><span>Detected plan warnings are listed before any write.</span></div></li>
-        <li><div><b>Resume after interruption</b><span>Progress is kept locally.</span></div></li>
-        <li><div><b>Independent validation</b><span>Validate re-reads both sides and runs its own finite check set.</span></div></li>
-        <li><div><b>Local and private</b><span>Single binary. Artifacts stay in <code>.piper/</code>.</span></div></li>
-      </ul>
+  <p class="eyebrow">Boundaries</p>
+  <h2>Built with clear boundaries.</h2>
+  <p class="intro">Piper is deliberate about what v1 covers. Capabilities first; the rest is documented so you’re never guessing.</p>
+
+  <div class="support">
+    <h3>What Piper supports</h3>
+    <div class="support-grid">
+      <div>
+        <b>Six cross-engine directions</b>
+        <p>PostgreSQL, MySQL, and MongoDB — whenever the engines differ.</p>
+      </div>
+      <div>
+        <b>Schema and data, plan first</b>
+        <p>Known warnings are listed before anything is written.</p>
+      </div>
+      <div>
+        <b>Resume after interruption</b>
+        <p>Progress is kept locally; finished batches stay finished.</p>
+      </div>
+      <div>
+        <b>Independent validation</b>
+        <p>Compares source and target after migration — without trusting the write report.</p>
+      </div>
+      <div>
+        <b>Local and private</b>
+        <p>One binary. No account. Artifacts stay in <code>.piper/</code>.</p>
+      </div>
+      <div>
+        <b>CI-ready output</b>
+        <p>JSON mode for the same checks and warnings you see in the terminal.</p>
+      </div>
     </div>
-    <div class="refuses">
-      <h3>Piper refuses</h3>
-      <ul>
-        <li><div><b>Same-dialect migration</b><span>Out of scope on purpose.</span></div></li>
-        <li><div><b>Full routine and trigger translation</b><span>They are named and skipped, not rewritten.</span></div></li>
-        <li><div><b>PostGIS as a support claim</b><span>Spatial data is not a promised mapping.</span></div></li>
-        <li><div><b>Omniscient drift detection</b><span>Unmodeled semantic changes can still exist outside the warning and validate surfaces.</span></div></li>
-        <li><div><b>Live sync and CDC</b><span>Piper reads the source as it goes, does not take a consistent database snapshot, and does not follow later writes.</span></div></li>
-        <li><div><b>Multi-schema in one run</b><span>One schema per run.</span></div></li>
-        <li><div><b>Roles and grants</b><span>Access control is not migrated.</span></div></li>
-      </ul>
-    </div>
+  </div>
+
+  <div class="scope-out">
+    <h3>Outside v1 scope</h3>
+    <ul class="scope-list">
+      <li>Same-engine copies</li>
+      <li>Live sync / CDC</li>
+      <li>Roles, grants, and privileges</li>
+      <li>Multiple schemas in one run</li>
+      <li>Full routine and trigger translation</li>
+      <li>PostGIS as a supported mapping</li>
+    </ul>
+    <p class="scope-note">Warnings cover the mappings and catalog facts Piper inspects — not every possible semantic change. See <a href="docs/what-changes.html">What changes</a> for the full picture.</p>
   </div>
 </section>
 </div>
@@ -763,8 +873,8 @@ footer a:hover{color:var(--fg);text-decoration-color:var(--fg)}
   <div class="get">
     <div>
       <p class="eyebrow">Get started</p>
-      <h2>Run doctor, then read your first plan.</h2>
-      <p class="intro">Piper is one local binary per platform — macOS, Linux, and Windows, on amd64 and arm64. Download the binary alone, or clone the playground branch for your OS (binary + sample datasets included).</p>
+      <h2>Get Piper and read your first plan.</h2>
+      <p class="intro">One binary for macOS, Linux, or Windows (amd64 and arm64). Download it alone, or clone the playground for your platform — binary plus sample databases included.</p>
 
       <div class="plats" id="download">
         <table>
@@ -806,18 +916,18 @@ footer a:hover{color:var(--fg);text-decoration-color:var(--fg)}
         </table>
       </div>
 
-      <p class="note-local"><strong>No global install required.</strong> Piper runs from whatever directory you put it in — <code>./piper doctor</code> (or <code>.\piper.exe doctor</code> on Windows) is enough. Putting it on your PATH is optional.</p>
-      <p class="small">Checksums: <a href="downloads/SHA256SUMS">downloads/SHA256SUMS</a>. Same six targets as the GoReleaser matrix. Playground: <a href="https://github.com/PiperKitOrg/piper-examples">PiperKitOrg/piper-examples</a>.</p>
+      <p class="note-local"><strong>No install step.</strong> Drop the binary anywhere and run <code>./piper doctor</code> (or <code>.\piper.exe doctor</code> on Windows). PATH is optional.</p>
+      <p class="small">Checksums: <a href="downloads/SHA256SUMS">downloads/SHA256SUMS</a>. Playground: <a href="https://github.com/PiperKitOrg/piper-examples">PiperKitOrg/piper-examples</a>. Setup guide: <a href="docs/install.html">Install</a>.</p>
     </div>
 
     <ol class="steps">
-      <li><span class="n">1</span><div><p><strong>Clone your platform branch</strong> from <a href="https://github.com/PiperKitOrg/piper-examples">piper-examples</a> (binary lands in <code>bin/</code>; datasets via submodules).</p>
+      <li><span class="n">1</span><div><p><strong>Clone your platform branch</strong> from <a href="https://github.com/PiperKitOrg/piper-examples">piper-examples</a>. The binary lands in <code>bin/</code>.</p>
         <div class="cmdline"><code>git clone --recurse-submodules -b darwin-arm64 https://github.com/PiperKitOrg/piper-examples.git</code><button type="button" data-copy="git clone --recurse-submodules -b darwin-arm64 https://github.com/PiperKitOrg/piper-examples.git">Copy</button></div></div></li>
-      <li><span class="n">2</span><div><p><strong>Start the local databases</strong> and follow the repo <code>README.md</code>.</p>
+      <li><span class="n">2</span><div><p><strong>Start the sample databases</strong> with Docker Compose.</p>
         <div class="cmdline"><code>docker compose up -d</code><button type="button" data-copy="docker compose up -d">Copy</button></div></div></li>
-      <li><span class="n">3</span><div><p><strong>Inspect, then read the plan.</strong> Nothing is written to the target yet. Pick a cross-dialect target.</p>
+      <li><span class="n">3</span><div><p><strong>Inspect, then read the plan.</strong> Nothing writes to the target yet.</p>
         <div class="cmdline"><code>bin/piper inspect &amp;&amp; bin/piper plan --target postgres</code><button type="button" data-copy="bin/piper inspect && bin/piper plan --target postgres">Copy</button></div></div></li>
-      <li><span class="n">4</span><div><p><strong>Execute when the warnings are acceptable,</strong> then validate.</p>
+      <li><span class="n">4</span><div><p><strong>Execute when the warnings look right,</strong> then validate.</p>
         <div class="cmdline"><code>bin/piper execute --yes &amp;&amp; bin/piper validate</code><button type="button" data-copy="bin/piper execute --yes && bin/piper validate">Copy</button></div></div></li>
     </ol>
   </div>
@@ -833,7 +943,7 @@ footer a:hover{color:var(--fg);text-decoration-color:var(--fg)}
     <img src="https://avatars.githubusercontent.com/u/105650335?v=4&amp;s=160" width="72" height="72" alt="Adam — The Developer" loading="lazy" decoding="async">
     <div>
       <h2>Adam — The Developer</h2>
-      <p class="intro">Built by me ❤️, shaped by your feedback. Whether you’ve found a bug, need help with a download, or have an idea for Piper, my inbox is open — and I’m usually quick to reply.</p>
+      <p class="intro">Built by me, shaped by your feedback. Bug reports, download help, and ideas are all welcome — I usually reply quickly.</p>
       <div class="links">
         <a href="https://a-thedeveloper.vercel.app" rel="noopener noreferrer">a-thedeveloper.vercel.app</a>
         <span class="sep" aria-hidden="true">·</span>

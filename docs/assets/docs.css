@@ -34,11 +34,20 @@
   --docs-toc:13rem;
   --docs-gap:2rem;
   --docs-max-read:42rem;
+  --scroll-size:6px;
+  --scroll-track:transparent;
+  --scroll-thumb:#9BB4BC;
+  --scroll-thumb-hover:var(--ocean-slate);
   color-scheme:light;
   box-sizing:border-box;
 }
 
-*{box-sizing:border-box}
+*{box-sizing:border-box;scrollbar-width:thin;scrollbar-color:var(--scroll-thumb) var(--scroll-track)}
+*::-webkit-scrollbar{width:var(--scroll-size);height:var(--scroll-size)}
+*::-webkit-scrollbar-track{background:var(--scroll-track)}
+*::-webkit-scrollbar-thumb{background:var(--scroll-thumb);border-radius:999px;border:1px solid transparent;background-clip:padding-box}
+*::-webkit-scrollbar-thumb:hover{background:var(--scroll-thumb-hover);border:1px solid transparent;background-clip:padding-box}
+*::-webkit-scrollbar-corner{background:transparent}
 html{scroll-behavior:smooth;scroll-padding-top:5rem}
 body{
   margin:0;
@@ -416,8 +425,8 @@ h1,h2,h3,h4{font-family:var(--display);margin:0;text-wrap:balance;color:var(--fg
   border-bottom:1px solid var(--line);
 }
 .docs-table tr:last-child th,.docs-table tr:last-child td{border-bottom:0}
-.docs-table th{
-  font:500 .72rem var(--mono);
+.mx-key{white-space:nowrap}
+.docs-table th{  font:500 .72rem var(--mono);
   letter-spacing:.06em;
   text-transform:uppercase;
   color:var(--muted);

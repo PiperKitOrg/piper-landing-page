@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://piperbyadam.vercel.app/sitemap.xml
