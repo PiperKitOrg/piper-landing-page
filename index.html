@@ -132,6 +132,9 @@ h2{font-weight:700;font-size:clamp(1.7rem,3.2vw,2.6rem);line-height:1.08;letter-
 .lines a,.foot-link a,.plain a{color:var(--acc);text-underline-offset:3px;text-decoration-color:var(--line)}
 @media(max-width:520px){.lines div{grid-template-columns:minmax(0,1fr)}}
 .plain{margin-top:18px;max-width:40em;color:var(--muted);font-size:.95rem}
+.link-row{margin:22px 0 36px;display:flex;flex-wrap:nowrap;align-items:center;gap:6px 12px;font-size:.95rem;white-space:nowrap}
+.link-row a{color:var(--acc);text-underline-offset:3px}
+.link-row span{color:var(--muted)}
 .fact-panel{margin-top:28px;border-top:1px solid var(--line)}
 .fact-panel div{display:grid;grid-template-columns:140px minmax(0,1fr);gap:6px 24px;padding:16px 0;border-bottom:1px solid var(--line);align-items:baseline}
 .fact-panel b{font:500 .85rem var(--mono);color:var(--fg)}
@@ -221,14 +224,28 @@ table.mx{border-collapse:collapse;width:100%;min-width:420px;font:400 .82rem var
 .note-local strong{color:var(--fg)}
 
 /* closing */
-.creator{display:flex;gap:18px;align-items:center;padding-block:48px;border-top:1px solid var(--line)}
-.creator img{width:64px;height:64px;border-radius:4px;border:1px solid var(--line);flex:none}
-.creator h2{font-size:1.4rem}
-.creator p{margin-top:6px;color:var(--muted);font-size:.97rem;max-width:34em}
-.creator a{text-underline-offset:4px;text-decoration-color:var(--line)}
-footer{padding-block:32px 52px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px;color:var(--muted);font-size:.9rem}
-footer .mono{font:400 .8rem var(--mono)}
-footer a{text-underline-offset:3px;text-decoration-color:var(--line)}
+.creator{display:flex;gap:22px;align-items:flex-start;margin-top:8px;margin-bottom:48px;padding:28px 32px;border:1px solid #2A4550;border-radius:12px;background:#152F38;color:#F5F7F3;color-scheme:dark}
+.creator img{width:72px;height:72px;border-radius:8px;border:1px solid #3A5A66;flex:none;object-fit:cover}
+.creator h2{font-size:1.35rem;letter-spacing:-.02em;color:#F5F7F3}
+.creator p{margin-top:8px;color:#9BB4BC;font-size:.97rem;max-width:38em;line-height:1.55}
+.creator-links{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:16px}
+.creator-links a{display:inline-flex;align-items:center;gap:8px;color:var(--glass);text-decoration:none;font-size:.95rem;border-bottom:1px dotted color-mix(in srgb,var(--glass) 55%,transparent);padding-bottom:1px}
+.creator-links a:hover{color:#B8F0E4}
+.creator-links svg{flex:none;opacity:.9}
+@media(max-width:520px){.creator{flex-direction:column;padding:22px}}
+footer{padding-block:40px 48px;color:var(--muted)}
+.foot-top{display:flex;justify-content:space-between;align-items:flex-start;gap:32px;padding-bottom:28px;border-bottom:1px solid var(--line)}
+.foot-brand{font:700 1.15rem var(--display);color:var(--fg);letter-spacing:-.02em}
+.foot-tag{margin-top:6px;font-size:.95rem;color:var(--muted)}
+.foot-nav{display:grid;gap:10px;text-align:right}
+.foot-nav a{color:var(--fg);text-decoration:none;font-size:.95rem}
+.foot-nav a:hover{color:var(--glass)}
+.foot-bottom{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding-top:22px;font-size:.9rem}
+.foot-bottom a{color:inherit;text-underline-offset:3px;text-decoration-color:var(--line)}
+@media(max-width:520px){
+  .foot-top{flex-direction:column}
+  .foot-nav{text-align:left}
+}
 </style>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Piper","applicationCategory":"DeveloperApplication","operatingSystem":"macOS, Linux, Windows","description":"Piper is a local CLI for moving schemas and data between PostgreSQL, MySQL, and MongoDB. It shows how types will map and flags known losses before you run the migration.","url":"https://piperbyadam.vercel.app/","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"author":{"@type":"Person","name":"Adam"}}
@@ -430,8 +447,8 @@ footer a{text-underline-offset:3px;text-decoration-color:var(--line)}
 <!-- VALIDATE -->
 <section class="step" id="validate">
   <span class="step-tag">piper validate · reads both sides</span>
-  <h2>Piper checks the result without trusting itself.</h2>
-  <p class="intro">After the write, Piper re-reads source and target for row counts, planned foreign keys, and recorded coercions — it does not trust execute’s report. Details in the <a href="docs/resume-and-validate.html">docs</a>.</p>
+  <h2>Independent migration validation</h2>
+  <p class="intro">Verify your migration directly against the source and target databases, with independent checks for row counts, planned relationships, and type conversions.</p>
   <figure class="term">
     <div class="term-bar"><b>piper validate</b><span>sample output</span></div>
 <pre><span class="ttl">Piper validation</span>
@@ -461,9 +478,9 @@ footer a{text-underline-offset:3px;text-decoration-color:var(--line)}
 
 <!-- SKIPPED -->
 <section class="step" id="skipped">
-  <span class="step-tag">skipped · left out of v1 on purpose</span>
+  <span class="step-tag">Skipped · Unsupported features</span>
   <h2>What Piper doesn’t do.</h2>
-  <p class="intro">Limits are listed the same way as lossy types — so you’re never guessing.</p>
+  <p class="intro">Every migration plan outlines known limitations alongside schema transformations and potential losses.</p>
   <div class="cols">
     <figure class="term">
       <div class="term-bar"><b>outside v1 scope</b><span>skipped</span></div>
@@ -485,7 +502,7 @@ footer a{text-underline-offset:3px;text-decoration-color:var(--line)}
 <section class="step" id="get">
   <span class="step-tag">get piper</span>
   <h2>Get Piper and read your first plan.</h2>
-  <p class="intro">One binary for macOS, Linux, or Windows (amd64 and arm64). Download it alone, or clone the playground for your platform — binary plus sample databases included.</p>
+  <p class="intro">Download Piper for your platform, or get hands-on with the playground — a ready-to-use environment with Piper and sample databases included.</p>
   <div class="cols">
     <div>
       <div class="plats" id="download">
@@ -502,7 +519,6 @@ footer a{text-underline-offset:3px;text-decoration-color:var(--line)}
         </table>
       </div>
       <p class="note-local"><strong>No install step.</strong> Drop the binary anywhere and run it. For your own databases, see <a href="docs/connections.html">connections</a> and <a href="docs/first-migration.html">first migration</a>.</p>
-      <p class="plain">Checksums: <a href="downloads/SHA256SUMS">downloads/SHA256SUMS</a>. Playground: <a href="https://github.com/PiperKitOrg/piper-examples">PiperKitOrg/piper-examples</a>. Setup: <a href="docs/install.html">Install</a>.</p>
     </div>
     <ol class="steps">
       <li><span class="n">1</span><div><p><strong>Clone your platform branch</strong> from piper-examples. The binary lands in <code>bin/</code>.</p>
@@ -515,11 +531,23 @@ footer a{text-underline-offset:3px;text-decoration-color:var(--line)}
         <div class="cmdline"><code>bin/piper execute --yes &amp;&amp; bin/piper validate</code><button type="button" data-copy="bin/piper execute --yes && bin/piper validate">Copy</button></div></div></li>
     </ol>
   </div>
+  <p class="link-row"><a href="downloads/SHA256SUMS">Verify checksums</a><span aria-hidden="true">·</span><a href="https://github.com/PiperKitOrg/piper-examples">Playground repository</a><span aria-hidden="true">·</span><a href="docs/install.html">Installation guide</a></p>
   <div class="creator">
-    <img src="https://avatars.githubusercontent.com/u/105650335?v=4&amp;s=160" width="64" height="64" alt="Adam" loading="lazy" decoding="async">
+    <img src="https://avatars.githubusercontent.com/u/105650335?v=4&amp;s=160" width="72" height="72" alt="Adam" loading="lazy" decoding="async">
     <div>
       <h2>Built by Adam</h2>
-      <p>Shaped by your feedback. Bug reports, download help, and ideas are welcome, and I usually reply quickly. <a href="https://a-thedeveloper.vercel.app" rel="noopener noreferrer">a-thedeveloper.vercel.app</a> · <a href="mailto:adaminiature@gmail.com">adaminiature@gmail.com</a></p>
+      <p>Piper is an independently developed project. Feedback, bug reports, and ideas are always welcome.</p>
+      <div class="creator-links">
+        <a href="https://a-thedeveloper.vercel.app" rel="noopener noreferrer">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.8 3.8 5.8 3.8 9s-1.3 6.2-3.8 9c-2.5-2.8-3.8-5.8-3.8-9S9.5 5.8 12 3z"/></svg>
+          Personal website
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17L17 7M8 7h9v9"/></svg>
+        </a>
+        <a href="mailto:adaminiature@gmail.com">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 7 9-7"/></svg>
+          Get in touch
+        </a>
+      </div>
     </div>
   </div>
 </section>
@@ -531,8 +559,19 @@ footer a{text-underline-offset:3px;text-decoration-color:var(--line)}
 <div class="deep">
 <div class="wrap">
 <footer>
-  <span>piper · inspect, plan, execute, validate · <a href="docs/index.html">docs</a> · made by <a href="https://a-thedeveloper.vercel.app" rel="noopener noreferrer">Adam</a></span>
-  <span class="mono">PostgreSQL 14+ · MySQL 8.0+ · MongoDB 7.0+</span>
+  <div class="foot-top">
+    <div>
+      <p class="foot-brand">piper</p>
+      <p class="foot-tag">Cross-dialect database migration.</p>
+    </div>
+    <nav class="foot-nav" aria-label="Footer">
+      <a href="docs/index.html">Documentation</a>
+    </nav>
+  </div>
+  <div class="foot-bottom">
+    <span>© 2026 Piper</span>
+    <span>Created by <a href="https://a-thedeveloper.vercel.app" rel="noopener noreferrer">Adam</a></span>
+  </div>
 </footer>
 </div>
 </div>
