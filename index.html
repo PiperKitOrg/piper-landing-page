@@ -121,6 +121,7 @@ code{font-family:var(--mono);font-size:.88em}
 .step-tag{display:inline-block;font:500 .82rem var(--mono);color:var(--acc);margin-bottom:14px}
 h2{font-weight:700;font-size:clamp(1.7rem,3.2vw,2.6rem);line-height:1.08;letter-spacing:-.028em;max-width:18em}
 .intro{margin-top:14px;max-width:36em;color:var(--muted)}
+.step > .term{margin-top:32px}
 .cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px 36px;margin-top:32px;align-items:start}
 @media(max-width:700px){.cols{grid-template-columns:minmax(0,1fr)}}
 .stack{display:grid;gap:20px;min-width:0}
@@ -131,6 +132,11 @@ h2{font-weight:700;font-size:clamp(1.7rem,3.2vw,2.6rem);line-height:1.08;letter-
 .lines a,.foot-link a,.plain a{color:var(--acc);text-underline-offset:3px;text-decoration-color:var(--line)}
 @media(max-width:520px){.lines div{grid-template-columns:minmax(0,1fr)}}
 .plain{margin-top:18px;max-width:40em;color:var(--muted);font-size:.95rem}
+.fact-panel{margin-top:28px;border-top:1px solid var(--line)}
+.fact-panel div{display:grid;grid-template-columns:140px minmax(0,1fr);gap:6px 24px;padding:16px 0;border-bottom:1px solid var(--line);align-items:baseline}
+.fact-panel b{font:500 .85rem var(--mono);color:var(--fg)}
+.fact-panel p{color:var(--muted);font-size:.97rem;line-height:1.45}
+@media(max-width:520px){.fact-panel div{grid-template-columns:minmax(0,1fr);gap:6px}}
 
 /* matrix */
 .mx-panel{min-width:0}
@@ -400,10 +406,9 @@ footer a{text-underline-offset:3px;text-decoration-color:var(--line)}
 <section class="step" id="execute">
   <span class="step-tag">piper execute · writes target</span>
   <h2>See every table as it copies.</h2>
-  <p class="intro">This is when the target changes: schema first, then each table with a row count. Large tables show a batch bar so a long run is measurable — not a blank wait.</p>
-  <div class="cols">
-    <figure class="term">
-      <div class="term-bar"><b>piper execute --yes</b><span>mysql → postgres · in progress</span></div>
+  <p class="intro">Once you’re satisfied with the plan, let Piper apply it to your target database. Follow the migration as schemas are created and data is transferred.</p>
+  <figure class="term">
+    <div class="term-bar"><b>piper execute --yes</b><span>mysql → postgres · in progress</span></div>
 <pre><span class="ttl">Piper migration</span>
   <span class="d">Keep source data unchanged until migration completes.</span>
 
@@ -413,13 +418,12 @@ footer a{text-underline-offset:3px;text-decoration-color:var(--line)}
       employees      <span class="d">300024 rows</span>
       dept_emp       <span class="d">331603 rows</span>
       salaries       <span class="d">[███░░░░░░░░░░░░░░░░░]  452/2845 batches</span></pre>
-      <div class="term-foot"><span>writes target</span><span>stop → piper resume</span></div>
-    </figure>
-    <div class="lines">
-      <div><b>Static source</b><p>Piper copies what it reads as it goes. Leave the source unchanged until you’re done.</p></div>
-      <div><b>Batch progress</b><p>Active tables show filled blocks and <code>done/total batches</code>.</p></div>
-      <div><b>Resume</b><p>If a long copy stops, <code>piper resume</code> continues from the last finished batch. Completed tables stay put.</p></div>
-    </div>
+    <div class="term-foot"><span>writes target</span><span>stop → piper resume</span></div>
+  </figure>
+  <div class="fact-panel">
+    <div><b>Static source</b><p>Keep your source database unchanged throughout the migration to ensure data consistency.</p></div>
+    <div><b>Batch progress</b><p>Track data transfer progress in real time, including individual batches for large tables.</p></div>
+    <div><b>Resume</b><p>Resume an interrupted migration from the last completed batch without repeating completed work.</p></div>
   </div>
 </section>
 
